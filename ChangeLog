@@ -1,0 +1,63 @@
+2011-01-24  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 1.2.5
+    * Internationalization support (cz, gr). Not as polished as I'd like, but whould work.
+
+2010-10-06  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 1.2.4
+    * Double-clicking on a track/album/artist works again properly (amarok's apparently no longer uses the 'devices' table).
+    * Resizing the window now scales the result frames (however it's slow and over-time-graphs are not updated vertically).
+    * Filtering results based on artist/album/genre is now case-insensitive again (something apparently changed on the database).
+    * Configuration is now properly stored on a configuration file rather than amarok's database. Older settings will be cleaned up.
+
+2010-03-16  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 1.2.3
+    * Handle Amarok now storing track lengths in msecs. Would mess statistics up a bit.
+
+2009-09-21  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 1.2.2
+    * Fixed issue where large texts could exceed a result box's frame.
+    * Text on result boxes should now respect the global KDE4 theme's default font sizes.
+    * Partially handled the bug where rendering two query result simultaneously (for example, scrolling down the query type combobox) would crash Amarok. Instead, it now does nothing, potentially causing the results and the query type to be out of sync, but no longer triggers the crash. I will devote time to fix it properly some time in the future.
+
+2009-09-18  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 1.2.0
+    * Added a Rating over Time graph and a Score over Time graph.
+    * Text on results area should now respect the theme's text color.
+
+2009-09-17  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 1.1.0
+    * Refactored the results displaying code to be more sane (could be better with QLayouts or so, will work on it sometime). Still cannot use QGraphicsItemGroup due to a bug, grrr.
+    * Added an additional, default query type that prints general statistics.
+
+2009-05-09  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 1.0.0
+    * Double-clicking on a track/album/artist adds it to your Amarok playlist.
+
+2009-04-29  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 0.9.9
+    * Results box made to be prettier and faster (converted to QGraphicsScene).
+
+2009-04-28  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 0.9.8
+    * Complete rewrite
+    * Prettier GUI
+    * Performance should be better, but it is still limited because ScrollArea paints the results slowly
+    * Can now configure how the rankings are calculated
+    * Can narrow results down to specific artists, genres etc
+    * Exclude albums temporarily disabled
+
+2009-03-13  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 0.9.3
+    * Added the Exclude Albums mechanism.
+
+2009-03-10  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Version 0.9.2
+    * Made the tabs load the content dynamically. This allows for configurable parameters, faster loading, and slower changing between tabs. Hopefully the perceived speed will be greater.
+    * Added configuration page.
+    * Added Skip Unrated Tracks option.
+    * Added Reverse Results option.
+    * Added Minimum Tracks per Album constraint.
+    * Made Results per Page configurable
+
+2009-03-06  Ioannis Gyftos <ioannis.gyftos@gmail.com>
+    * Initial Release
