@@ -83,8 +83,8 @@ function fillTracksPage(album, artist, genre, year, type)
     if (album  != "")                       sql_query += "         AND t.album  = b.id and upper(b.name) like upper('%" + album  + "%')";
     if (genre  != "")                       sql_query += "         AND t.genre  = g.id and upper(g.name) like upper('%" + genre  + "%')";
     if (year   != "")                       sql_query += "         AND t.year   = y.id and y.name = '"     + year   + "'";
-    if (type   == "4")                      sql_query += "         AND s.playcount > 0"
-                                            sql_query +=       createOrderString(type);
+    if (type   == "4")                      sql_query += "         AND s.playcount > 0 "
+                                            sql_query += " " + createOrderString(type);
                                             sql_query += "     LIMIT " + config.resultsLimit;
                                             sql_query += " ) c JOIN albums b      ON (c.album  = b.id)";
                                             sql_query += "     JOIN artists a     ON (c.artist = a.id)";
@@ -128,7 +128,7 @@ function fillAlbumsPage(artist, genre, year, type)
     if (year   != "")                       sql_query += "             AND t.year   = y.id AND y.name = '"     + year   + "'";
                                             sql_query += "             GROUP BY b.id";
                                             sql_query += "             HAVING count(*) >= " + config.minTracksPerAlbum;
-                                            sql_query += "         ) c JOIN albums b ON (c.id=b.id) LEFT JOIN images i ON (b.image = i.id)";
+                                            sql_query += "         ) c JOIN albums b ON (c.id=b.id) LEFT JOIN images i ON (b.image = i.id) ";
                                             sql_query +=       createOrderString(type);
                                             sql_query += "     LIMIT " + config.resultsLimit;
 
@@ -138,8 +138,8 @@ function fillAlbumsPage(artist, genre, year, type)
 function fillArtistsPage(/*artist,*/ genre, year, type)
 {
 sql_query = "SELECT \
-		( a.name, \
-		SELECT path from images i LEFT JOIN albums b ON (i.id = b.image) WHERE b.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1) as bild, \
+		a.name, \
+		(SELECT path from images i LEFT JOIN albums b ON (i.id = b.image) WHERE b.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1) as bild, \
 		wiedergabezaehler, \
 		anzlieder, \
 		c.anzalben, \
@@ -171,7 +171,7 @@ if(genre!="") sql_query += " AND upper(g.name) like upper('%" + genre + "%') ";
 if(year!="") sql_query += " AND t.year   = y.id AND y.name = '" + year + "' ";
 
 	sql_query += " GROUP BY t.artist "
-				+ createOrderString(type)
+				+ createOrderString("0", "bla")
 				+ " DESC LIMIT 10\
 	) c JOIN artists a on (c.artist = a.id)";
 
@@ -207,7 +207,7 @@ function fillGenresPage(year, type)
     if (year   != "")                       sql_query += "         AND t.year = y.id AND y.name = '" + year + "'";
                                             sql_query += "         GROUP BY g.id";
                                             sql_query += "         HAVING count(*) >= " + config.minTracksPerAlbum;
-                                            sql_query += "     ) c";
+                                            sql_query += "     ) c ";
                                             sql_query +=   createOrderString(type);
                                             sql_query += " LIMIT " + config.resultsLimit;
     return sql_query;
