@@ -13,8 +13,6 @@ function DisplayResults(displayCommon)
 
     // Emblem Pixmaps
     this.pixmap_star      = new QPixmap(Amarok.Info.scriptPath() + "/smallerstar.png").scaled(this.emblem_x, this.emblem_y);
-    this.pixmap_halfstar  = new QPixmap(Amarok.Info.scriptPath() + "/smallerhalfstar.png").scaled(this.emblem_x , this.emblem_y);
-    this.pixmap_nostar    = new QPixmap(Amarok.Info.scriptPath() + "/smallernostar.png").scaled(this.emblem_x, this.emblem_y);
     this.pixmap_playcount = new QPixmap(Amarok.Info.iconPath( "amarok_playcount", this.emblem_x));
     this.pixmap_score     = new QPixmap(Amarok.Info.iconPath( "love-amarok", this.emblem_x));
     this.pixmap_length    = new QPixmap(Amarok.Info.iconPath( "amarok_clock", this.emblem_x));
@@ -49,22 +47,18 @@ DisplayResults.prototype.addRating = function(frame, rating)
     var x = frame.x + this.common.albumCover_x + 2 * this.common.albumCover_spacing + this.emblem_spacing;
     var y = frame.y + frame.height - this.common.text_thickness - this.emblem_y;
 
-    for (var r=0; r<Math.floor(rating/2); r++){
-        var img_rating = new QGraphicsPixmapItem(this.pixmap_star, frame.widget);
+	var num_full_star = Math.floor(rating/2);
+	var value_half_star = rating - 2*num_full_star;
+
+	for (var r=0; r<num_full_star; ++r) {
+		var img_rating = new QGraphicsPixmapItem(this.pixmap_star, frame.widget);
         img_rating.moveBy(x, y);
         x += this.emblem_x;
     }
-    if (rating%2==1){
-        var img_rating = new QGraphicsPixmapItem(this.pixmap_halfstar, frame.widget);
-        rating++;
-        img_rating.moveBy(x, y);
-        x += this.emblem_x;
-    }
-    for (var r=Math.floor(rating/2); r<5; r++){
-        var img_rating = new QGraphicsPixmapItem(this.pixmap_nostar, frame.widget);
-        img_rating.moveBy(x, y);
-        x += this.emblem_x;
-    }
+
+    var halfstar = new QPixmap(Amarok.Info.scriptPath() + "/smallerstar.png").scaled(this.emblem_x * value_half_star / 2.0, this.emblem_y, Qt.IgnoreAspectRatio, Qt.SmoothTransformation);
+	var img_rating = new QGraphicsPixmapItem(halfstar, frame.widget);
+	img_rating.moveBy(x, y);
 }
 
 
@@ -95,8 +89,8 @@ DisplayResults.prototype.drawResults = function (scrollArea, queryType, queryStr
         this.common.addAlbumCover(frame, imagePath);
         this.common.addWeightRating(frame, weight, maxWeight);
         this.common.addSimpleText(frame, query[i+2],  0, true);
-        this.common.addSimpleText(frame, query[i+3], this.common.font_bold_height, false);
-        this.common.addSimpleText(frame, query[i+4], this.common.font_bold_height + this.common.font_height, false);
+        this.common.addSimpleText(frame, query[i+3] + " " + (parseInt(query[i+3])>1 ? qsTr("albums") : qsTr("album")), this.common.font_bold_height, false);
+        this.common.addSimpleText(frame, query[i+4] + " " + (parseInt(query[i+4])>1 ? qsTr("tracks") : qsTr("track")), this.common.font_bold_height + this.common.font_height, false);
         this.addRating(frame, query[i+5]);
         this.addEmblemImage(frame, this.pixmap_score, 0);
         this.addEmblemText(frame, query[i+6], 0);

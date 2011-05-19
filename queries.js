@@ -134,20 +134,20 @@ function fillAlbumsPage(artist, genre, year, type)
 
     return sql_query;
 }
-
+// round(c.jahr, 0) \
 function fillArtistsPage(/*artist,*/ genre, year, type)
 {
 sql_query = "SELECT \
-		a.name, \
+		null, \
 		(SELECT path from images i LEFT JOIN albums b ON (i.id = b.image) WHERE b.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1) as bild, \
-		wiedergabezaehler, \
-		anzlieder, \
+		a.name, \
 		c.anzalben, \
+		anzlieder, \
 		round(c.bewertung,1), \
 		round(c.punkte, 0), \
+		wiedergabezaehler, \
 		laenge, \
-		wichtung, \
-		round(c.jahr, 0) \
+		wichtung \
 	FROM ( \
 	SELECT \
 		t.artist, \
@@ -171,7 +171,7 @@ if(genre!="") sql_query += " AND upper(g.name) like upper('%" + genre + "%') ";
 if(year!="") sql_query += " AND t.year   = y.id AND y.name = '" + year + "' ";
 
 	sql_query += " GROUP BY t.artist "
-				+ createOrderString("0", "bla")
+				+ createOrderString("5", "bla")
 				+ " DESC LIMIT 10\
 	) c JOIN artists a on (c.artist = a.id)";
 
