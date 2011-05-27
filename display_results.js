@@ -61,10 +61,11 @@ DisplayResults.prototype.addRating = function(frame, rating)
 	img_rating.moveBy(x, y);
 }
 
-
-DisplayResults.prototype.drawResults = function (scrollArea, queryType, queryStride, query)
+//SQL-Aufrufe so hinbiegen, dass sie immer gleich aussehen, dann können wir hier mächtig aufräumen
+DisplayResults.prototype.drawResults = function (scrollArea, queryType, query)
 {
     msg("Drawing results");
+	var queryStride = 10;
 
     var maxWeight = (config.reverseResults == Qt.Unchecked)
                     ? (queryType < 5) ? query[9] : query[7]
