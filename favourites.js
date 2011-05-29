@@ -135,8 +135,8 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.mainLayout.addWidget(this.groupBoxSearch,  0, 0);
     this.mainLayout.addWidget(this.groupBoxResults, 0, 0);
 
-    this.comboGroupBy['currentIndexChanged()'].connect(this, this.onQueryTypeChanged);
-    this.comboOrderBy['currentIndexChanged()'].connect(this, this.onQueryTypeChanged);
+    this.comboGroupBy['currentIndexChanged(int)'].connect(this, this.onQueryTypeChanged);
+    this.comboOrderBy['currentIndexChanged(int)'].connect(this, this.onQueryTypeChanged);
     this.searchButtonClear.clicked.connect(    this, this.onQueryCleared);
     this.searchBoxAlbum.returnPressed.connect( this, this.onQuerySubmitted);
     this.searchBoxArtist.returnPressed.connect(this, this.onQuerySubmitted);
@@ -152,7 +152,7 @@ FavouritesTab.prototype.draw = function(parentWidget)
 
     msg("Finished drawing favourites tab...");
 
-    this.onQueryTypeChanged(0);
+    this.onQueryTypeChanged();
 }
 
 FavouritesTab.prototype.closeEvent = function(CloseEvent)
@@ -220,23 +220,23 @@ FavouritesTab.prototype.onQueryTypeChanged = function()
 	}
 
     if (indexGr == 1){
-        this.displayResults(fillTracksPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd));
+        this.displayResults(fillTracksPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
     }
 
     if (indexGr == 2){
-        this.displayResults(fillArtistsPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd));
+        this.displayResults(fillArtistsPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
     }
 
 	if (indexGr == 3){
-		this.displayResults(fillAlbumArtistsPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd));
+		this.displayResults(fillAlbumArtistsPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
 	}
 
     if (indexGr == 4){
-        this.displayResults(fillAlbumsPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd));
+        this.displayResults(fillAlbumsPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
     }
 
     if (indexGr == 5){
-        this.displayResults(fillGenresPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd));
+        this.displayResults(fillGenresPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
     }
 
     if (indexGr == 6){
@@ -267,7 +267,7 @@ FavouritesTab.prototype.displayStatistics = function(query_string)
     msg("Finished painting statistics...");
 }
 
-FavouritesTab.prototype.displayResults = function(query_string)
+FavouritesTab.prototype.displayResults = function(query_string, indexOrd)
 {
     msg("Painting results...");
 
@@ -279,7 +279,7 @@ FavouritesTab.prototype.displayResults = function(query_string)
         return;
     }
 
-    this.Results_Painter.drawResults(this.scrollAreaData, indexGr, currentQuery);
+    this.Results_Painter.drawResults(this.scrollAreaData, currentQuery, indexOrd);
 }
 
 FavouritesTab.prototype.displayGraph = function(query_string, maxValue)
@@ -296,9 +296,5 @@ FavouritesTab.prototype.displayGraph = function(query_string, maxValue)
 
     this.graphPainter.drawGraph(this.scrollAreaData, currentQuery, maxValue);
 }
-
-
-
-
 
 

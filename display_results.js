@@ -61,24 +61,23 @@ DisplayResults.prototype.addRating = function(frame, rating)
 	img_rating.moveBy(x, y);
 }
 
-//SQL-Aufrufe so hinbiegen, dass sie immer gleich aussehen, dann können wir hier mächtig aufräumen
-DisplayResults.prototype.drawResults = function (scrollArea, queryType, query)
+DisplayResults.prototype.drawResults = function (scrollArea, query, indexOrd)
 {
     msg("Drawing results");
-	var queryStride = 10;
+	var queryStride = 11;
 
-    var maxWeight = (config.reverseResults == Qt.Unchecked)
+    var maxWeight = 1000; /*(config.reverseResults == Qt.Unchecked)
                     ? (queryType < 5) ? query[9] : query[7]
-                    : (queryType < 5) ? query[query.length - 1] : query[query.length - 3]
+                    : (queryType < 5) ? query[query.length - 1] : query[query.length - 3]*/
 
     for( var i = 0; i < query.length; i += queryStride)
     {
         var frame = this.common.drawFrame(scrollArea, i / queryStride);
 
         var imagePath = (query[i+1] != "") ? query[i+1] : Amarok.Info.iconPath(
-                            (queryType == 4 || queryType == 8) ? "filename-genre-amarok" : "filename-album-amarok", 64
+                            (indexOrd != 2 ) ? "filename-genre-amarok" : "filename-album-amarok", 64
                         );
-        var weight = (queryType < 5) ? query[i+9] : query[i+7];
+        var weight = query[i+10];
 
         var len_hour = Math.floor(query[i+8]/3600000);
         var len_min  = Math.floor((query[i+8]/1000 - len_hour*3600)/60);
@@ -94,7 +93,8 @@ DisplayResults.prototype.drawResults = function (scrollArea, queryType, query)
         this.common.addSimpleText(frame, query[i+4] + " " + (parseInt(query[i+4])>1 ? qsTr("tracks") : qsTr("track")), this.common.font_bold_height + this.common.font_height, false);
         this.addRating(frame, query[i+5]);
         this.addEmblemImage(frame, this.pixmap_score, 0);
-        this.addEmblemText(frame, query[i+6], 0);
+		var score = Math.round(parseFloat(query[i+6]))
+        this.addEmblemText(frame, String( isNaN(score) ? 0 : score), 0);
         this.addEmblemImage(frame, this.pixmap_playcount, 1);
         this.addEmblemText(frame, query[i+7], 1);
         this.addEmblemImage(frame, this.pixmap_length, 2);

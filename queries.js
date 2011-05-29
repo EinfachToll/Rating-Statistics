@@ -2,100 +2,102 @@ Importer.loadQtBinding( "qt.gui" );
 Importer.loadQtBinding( "qt.uitools" );
 
 /** @returns Ein SQL-String, der angibt, wonach sortiert wird */
-function createOrderString(type, grouping)
+function createOrderString(groupby, orderby)
 {
 	l = "";
-	switch(type) {
-		case "0":
-			l = "HAVING anzbew >= 5 ORDER BY bewertung";
+	switch(orderby) {
+		case 0:
+			l = (groupby != 0 ? " HAVING anzbew >= " + config.minTracksPerAlbum : "" ) + " ORDER BY bewertung ";
 			break;
-		case "1":
-		l = "ORDER BY wiedergabezaehler";
-		break;
-		case "2":
-			l = "ORDER BY anzlieder";
+		case 1:
+			l = " ORDER BY wiedergabezaehler ";
 			break;
-		case "3":
-			l = "ORDER BY laenge";
+		case 2:
+			l = " ORDER BY punkte ";
 			break;
-		case "4":
-			l = "HAVING count(if( s.score  is null, null, s.score)) >= 5 ORDER BY punkte";
+		case 3:
+			l = (config.weightRating > 0 && groupby != 0 ? " HAVING anzbew >= 1 " : "" ) + " ORDER BY wichtung ";
 			break;
-		case "5":
-			l = "HAVING anzbew >= 5 ORDER BY wichtung";
+		case 4:
+			l = " ORDER BY laenge ";
 			break;
-		case "6":
-			l = "ORDER BY anzalben";
+		case 5:
+			l = " ORDER BY anzlieder ";
+			break;
+		case 6:
+			l = " ORDER BY anzalben ";
 			break;
 		default:
-			l = "HAVING anzlieder >= 5 ORDER BY jahr";
+			l = " ORDER BY jahr ";
 			break;
 	}
 
-    return l;
-    /*l = " ORDER BY ";
-    if (type >= 4){
-        l += "round(playcount,0) ";
-        if (config.reverseResults==Qt.Unchecked) l += "DESC";
-        l += ", ";
-    }
-    l += "weight ";
-    if (config.reverseResults==Qt.Unchecked) l += "DESC";
-    return l;
-	*/
-}
+	if (config.reverseResults==Qt.Unchecked) l += "DESC ";
 
-function createWeightString(type)
-{
-    l = "   (5.0 * " + config.weightRating    + " * avg(if(s.rating < 1,  null, s.rating)))"
-      + " + (0.6 * " + config.weightScore     + " * avg(s.score))"
-      + " + (0.5 * " + config.weightLength    + " * sqrt(sum(t.length)/1000))";
-    if (type%4==3) {
-        l += " + (2.5 * " + config.weightPlaycount + " * sum(s.playcount))";
-    } else {
-        l += " + (2.5 * " + config.weightPlaycount + " * sqrt(sum(s.playcount)))";
-    }
     return l;
 }
 
-function fillTracksPage(album, artist, genre, year, type)
+function createWeightString(groupby)
 {
-    var                                     sql_query  = " SELECT";
-                                            sql_query += "     c.id,";
-                                            sql_query += "     i.path,";
-                                            sql_query += "     c.title, concat('by ', a.name), concat('on ',b.name),";
-                                            sql_query += "     c.rating,";
-                                            sql_query += "     round(c.score,0),";
-                                            sql_query += "     c.playcount,";
-                                            sql_query += "     c.length,";
-                                            sql_query += "     c.weight";
-                                            sql_query += " FROM (";
-                                            sql_query += "     SELECT";
-                                            sql_query += "         t.id, t.title, t.album, t.artist, s.rating, s.score, t.length, s.playcount,";
-                                            sql_query +=           createWeightString(type) + " as weight";
-                                            sql_query += "     FROM statistics s JOIN tracks t ON (s.url = t.url)";
-    if (artist != "")                       sql_query += "                                                            , amarok.artists a";
-    if (album  != "")                       sql_query += "                                                            , amarok.albums  b";
-    if (genre  != "")                       sql_query += "                                                            , amarok.genres  g";
-    if (year   != "")                       sql_query += "                                                            , amarok.years   y";
-                                            sql_query += "         WHERE 1=1"; // read [1]
-    if (artist != "")                       sql_query += "         AND t.artist = a.id and upper(a.name) like upper('%" + artist + "%')";
-    if (album  != "")                       sql_query += "         AND t.album  = b.id and upper(b.name) like upper('%" + album  + "%')";
-    if (genre  != "")                       sql_query += "         AND t.genre  = g.id and upper(g.name) like upper('%" + genre  + "%')";
-    if (year   != "")                       sql_query += "         AND t.year   = y.id and y.name = '"     + year   + "'";
-    if (type   == "4")                      sql_query += "         AND s.playcount > 0 "
-                                            sql_query += " " + createOrderString(type);
-                                            sql_query += "     LIMIT " + config.resultsLimit;
-                                            sql_query += " ) c JOIN albums b      ON (c.album  = b.id)";
-                                            sql_query += "     JOIN artists a     ON (c.artist = a.id)";
-                                            sql_query += "     LEFT JOIN images i ON (b.image  = i.id)";
+	if(groupby!=0)
+	{
+		l = "   (5.0 * " + config.weightRating    + " * avg(if(s.rating < 1,  null, s.rating)))"
+		  + " + (0.6 * " + config.weightScore     + " * avg(s.score))"
+		  + " + (0.5 * " + config.weightLength    + " * sqrt(sum(t.length)/1000))";
+		if (groupby == 2 || groupby == 3) {
+			l += " + (2.5 * " + config.weightPlaycount + " * sum(s.playcount))";
+		} else {
+			l += " + (2.5 * " + config.weightPlaycount + " * sqrt(sum(s.playcount)))";
+		}
+	} else
+	{
+		l = "   (5.0 * " + config.weightRating    + " * if(s.rating < 1,  null, s.rating))"
+		  + " + (0.6 * " + config.weightScore     + " * s.score)"
+		  + " + (0.5 * " + config.weightLength    + " * sqrt(t.length)/1000)";
+		if (groupby == 2 || groupby == 3) {
+			l += " + (2.5 * " + config.weightPlaycount + " * s.playcount)";
+		} else {
+			l += " + (2.5 * " + config.weightPlaycount + " * sqrt(s.playcount))";
+		}
+	}
+    return l;
+}
+
+function createFilterString(album, artist, genre, year)
+{
+	f = "";
+    if (artist != "") f += " AND upper(b.name) like upper('%" + artist + "%')";
+    if (album  != "") f += " AND upper(a.name) like upper('%" + album  + "%')";
+    if (genre  != "") f += " AND upper(g.name) like upper('%" + genre  + "%')";
+    if (year   != "") f += " AND y.name = '"     + year   + "'";
+	return f;
+}
+
+
+function fillTracksPage(album, artist, genre, year, orderby)
+{
+	var sql_query = "\
+	SELECT  \
+	t.id, \
+	i.path as bild, \
+	concat(t.title, ' " + qsTr("by") + " ' , b.name, ' " + qsTr("on") + " ' , a.name) as liedname, \
+	1 as anzalben, \
+	1 as anzlieder, \
+	s.rating as bewertung, \
+	s.score as punkte, \
+	s.playcount as wiedergabezaehler, \
+	t.length as laenge, \
+	y.name as jahr, \
+	" + createWeightString(0) + " AS wichtung \
+	from tracks t join statistics s on (s.url = t.url) join years y on (t.year=y.id) join albums a on (a.id = t.album) join artists b on (b.id = t.artist) join images i ON (i.id = a.image) JOIN genres g ON (g.id = t.genre)\
+	where true \
+	" + createFilterString(album, artist, genre, year) +
+	createOrderString(0, orderby) + " limit " + config.resultsLimit;
+
     return sql_query;
-
-    // 1: This is just a simple WHERE clause that always returns true. MySQL should optimize it away, without performance loss.
-    //    It is used to force at least one WHERE clause, so the optional parameters below can always safely use AND without additional checks
 }
 
-function fillAlbumsPage(artist, genre, year, type)
+function fillAlbumsPage(album, artist, genre, year, orderby)
 {
     var                                     sql_query  = " SELECT";
                                             sql_query += "     b.id,";
@@ -109,7 +111,7 @@ function fillAlbumsPage(artist, genre, year, type)
                                             sql_query += "     round(c.score, 0),";
                                             sql_query += "     round(c.playcount, 0),";
                                             sql_query += "     c.length,";
-                                            sql_query +=       createWeightString(type) + " as weight";
+                                            sql_query +=       createWeightString(3) + " as weight";
                                             sql_query += "     FROM (";
                                             sql_query += "         SELECT";
                                             sql_query += "             b.id,";
@@ -129,16 +131,17 @@ function fillAlbumsPage(artist, genre, year, type)
                                             sql_query += "             GROUP BY b.id";
                                             sql_query += "             HAVING count(*) >= " + config.minTracksPerAlbum;
                                             sql_query += "         ) c JOIN albums b ON (c.id=b.id) LEFT JOIN images i ON (b.image = i.id) ";
-                                            sql_query +=       createOrderString(type);
+                                            sql_query +=       createOrderString(3, orderby);
                                             sql_query += "     LIMIT " + config.resultsLimit;
 
     return sql_query;
 }
-// round(c.jahr, 0) \
-function fillArtistsPage(/*artist,*/ genre, year, type)
+
+//soweit fertig
+function fillArtistsPage(album, artist, genre, year, orderby)
 {
 sql_query = "SELECT \
-		null, \
+		a.id, \
 		(SELECT path from images i LEFT JOIN albums b ON (i.id = b.image) WHERE b.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1) as bild, \
 		a.name, \
 		c.anzalben, \
@@ -147,6 +150,7 @@ sql_query = "SELECT \
 		round(c.punkte, 0), \
 		wiedergabezaehler, \
 		laenge, \
+		round(jahr, 0), \
 		wichtung \
 	FROM ( \
 	SELECT \
@@ -158,28 +162,28 @@ sql_query = "SELECT \
 		sum(t.length)    as laenge, \
 		count(if(s.rating < 1, null, s.rating)) as anzbew, \
 		count(*) as anzlieder, " 
-	+ createWeightString(type) 
+	+ createWeightString(1) 
 		+ " \
 		as wichtung, \
 		avg(if(y.name < 1, null, y.name)) as jahr \
 	FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y on (t.year=y.id) ";
 
-if(genre!="") sql_query += " LEFT JOIN genres g ON (t.genre=g.id) ";
+/*if(genre!="") sql_query += " LEFT JOIN genres g ON (t.genre=g.id) ";
 
 sql_query += " WHERE true ";
 if(genre!="") sql_query += " AND upper(g.name) like upper('%" + genre + "%') ";
-if(year!="") sql_query += " AND t.year   = y.id AND y.name = '" + year + "' ";
+if(year!="") sql_query += " AND t.year   = y.id AND y.name = '" + year + "' ";*/
 
 	sql_query += " GROUP BY t.artist "
-				+ createOrderString("5", "bla")
-				+ " DESC LIMIT 10\
+				+ createOrderString(1, orderby)
+				+ " LIMIT " + config.resultsLimit + "\
 	) c JOIN artists a on (c.artist = a.id)";
 
     return sql_query;
 }
 
 
-function fillGenresPage(year, type)
+function fillGenresPage(album, artist, genre, year, orderby)
 {
     var                                     sql_query  = " SELECT";
                                             sql_query += "     c.id,";
@@ -189,7 +193,7 @@ function fillGenresPage(year, type)
                                             sql_query += "     round(c.score, 0),";
                                             sql_query += "     playcount,";
                                             sql_query += "     length,";
-                                            sql_query +=       createWeightString(type) + " as weight";
+                                            sql_query +=       createWeightString(4) + " as weight";
                                             sql_query += " FROM (";
                                             sql_query += "     SELECT";
                                             sql_query += "         g.id,";
@@ -208,7 +212,7 @@ function fillGenresPage(year, type)
                                             sql_query += "         GROUP BY g.id";
                                             sql_query += "         HAVING count(*) >= " + config.minTracksPerAlbum;
                                             sql_query += "     ) c ";
-                                            sql_query +=   createOrderString(type);
+                                            sql_query +=   createOrderString(4, orderby);
                                             sql_query += " LIMIT " + config.resultsLimit;
     return sql_query;
 }
