@@ -279,7 +279,7 @@ FavouritesTab.prototype.displayResults = function(query_string, indexOrd)
         return;
     }
 
-    this.Results_Painter.drawResults(this.scrollAreaData, currentQuery, indexOrd);
+    this.Results_Painter.drawResults(this.scrollAreaData, currentQuery, indexGr, indexOrd);
 }
 
 FavouritesTab.prototype.displayGraph = function(query_string, maxValue)

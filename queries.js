@@ -80,15 +80,15 @@ function fillTracksPage(album, artist, genre, year, orderby)
 	SELECT  \
 	t.id, \
 	i.path as bild, \
-	concat(t.title, ' " + qsTr("by") + " ' , b.name, ' " + qsTr("on") + " ' , a.name) as liedname, \
-	1 as anzalben, \
-	1 as anzlieder, \
+	t.title  as liedname, \
 	s.rating as bewertung, \
-	s.score as punkte, \
 	s.playcount as wiedergabezaehler, \
+	s.score as punkte, \
+	" + createWeightString(0) + " AS wichtung, \
 	t.length as laenge, \
-	y.name as jahr, \
-	" + createWeightString(0) + " AS wichtung \
+	b.name, \
+	a.name, \
+	y.name as jahr \
 	from tracks t join statistics s on (s.url = t.url) join years y on (t.year=y.id) join albums a on (a.id = t.album) join artists b on (b.id = t.artist) join images i ON (i.id = a.image) JOIN genres g ON (g.id = t.genre)\
 	where true \
 	" + createFilterString(album, artist, genre, year) +
@@ -141,17 +141,17 @@ function fillAlbumsPage(album, artist, genre, year, orderby)
 function fillArtistsPage(album, artist, genre, year, orderby)
 {
 sql_query = "SELECT \
-		a.id, \
-		(SELECT path from images i LEFT JOIN albums b ON (i.id = b.image) WHERE b.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1) as bild, \
-		a.name, \
-		c.anzalben, \
-		anzlieder, \
+		b.id, \
+		(SELECT path from images i LEFT JOIN albums a ON (i.id = a.image) WHERE a.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1) as bild, \
+		b.name, \
 		round(c.bewertung,1), \
-		round(c.punkte, 0), \
 		wiedergabezaehler, \
+		round(c.punkte, 0), \
+		wichtung, \
 		laenge, \
-		round(jahr, 0), \
-		wichtung \
+		anzlieder, \
+		c.anzalben, \
+		round(jahr, 0) \
 	FROM ( \
 	SELECT \
 		t.artist, \
@@ -166,18 +166,14 @@ sql_query = "SELECT \
 		+ " \
 		as wichtung, \
 		avg(if(y.name < 1, null, y.name)) as jahr \
-	FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y on (t.year=y.id) ";
-
-/*if(genre!="") sql_query += " LEFT JOIN genres g ON (t.genre=g.id) ";
-
-sql_query += " WHERE true ";
-if(genre!="") sql_query += " AND upper(g.name) like upper('%" + genre + "%') ";
-if(year!="") sql_query += " AND t.year   = y.id AND y.name = '" + year + "' ";*/
-
-	sql_query += " GROUP BY t.artist "
-				+ createOrderString(1, orderby)
-				+ " LIMIT " + config.resultsLimit + "\
-	) c JOIN artists a on (c.artist = a.id)";
+	FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y on (t.year=y.id) \
+	LEFT JOIN genres g ON (t.genre=g.id) \
+	WHERE true "
+	+ createFilterString(album, artist, genre, year)
+	+ " GROUP BY t.artist "
+	+ createOrderString(1, orderby)
+	+ " LIMIT " + config.resultsLimit + "\
+	) c JOIN artists b on (c.artist = b.id)";
 
     return sql_query;
 }
