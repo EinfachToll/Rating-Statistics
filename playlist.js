@@ -36,9 +36,18 @@ PlaylistImporter.prototype.addArtist = function(artistID)
 {
     msg("Adding artist with ID " + artistID + " to playlist...");
 
-    var sql_query  = "SELECT concat('file://', if(devices.lastmountpoint is NULL, '', devices.lastmountpoint), '/', urls.rpath) FROM tracks AS ts, (select th.jahr, tr.id from tracks as tr, (select max(name) as jahr, album from tracks, years where tracks.year=years.id group by album) th where th.album=tr.album) tnh, (urls  LEFT JOIN devices ON devices.id=urls.deviceid) WHERE tnh.id=ts.id AND urls.id=ts.url AND ts.artist=" + artistID + " order by tnh.jahr, ts.album, ts.discnumber, ts.tracknumber";
+    var sql_query  = "SELECT concat('file://', if(devices.lastmountpoint is NULL, '', devices.lastmountpoint), '/', urls.rpath) FROM tracks AS ts, (select th.jahr, tr.id from tracks as tr, (select max(years.name) as jahr, album from tracks, years where tracks.year=years.id group by album) th where th.album=tr.album) tnh, (urls  LEFT JOIN devices ON devices.id=urls.deviceid) WHERE tnh.id=ts.id AND urls.id=ts.url AND ts.artist=" + artistID + " order by tnh.jahr, ts.album, ts.discnumber, ts.tracknumber";
     var result = sql_exec(sql_query);
 
+	Amarok.Playlist.addMediaList(result);
+}
+
+PlaylistImporter.prototype.addAlbumArtist = function(artistID)
+{
+	msg("Adding artist with ID " + artistID + " to playlist...");
+
+	var sql_query = "SELECT concat('file://', if(devices.lastmountpoint is NULL, '', devices.lastmountpoint), '/', urls.rpath) FROM tracks, albums, (urls LEFT JOIN devices ON devices.id=urls.deviceid), (select max(years.name) as jahr, album from tracks, years where tracks.year=years.id group by album) as jahr WHERE tracks.album = albums.id and tracks.url = urls.id AND jahr.album = albums.id AND albums.artist = " + artistID + " ORDER BY jahr.jahr, tracks.album, tracks.discnumber, tracks.tracknumber";
+	var result = sql_exec(sql_query);
 	Amarok.Playlist.addMediaList(result);
 }
 

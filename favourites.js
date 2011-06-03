@@ -8,6 +8,7 @@ Importer.include("display_statistics.js");
 Importer.include("display_graph.js");
 
 var currentQuery = new Array();
+var indexGr = 0;
 
 var icon_statistics		= new QIcon(Amarok.Info.iconPath( "amarok_mostplayed", 16));
 var icon_track			= new QIcon(Amarok.Info.iconPath( "filename-title-amarok", 16));
@@ -46,15 +47,14 @@ extend(CustomQGraphicsScene, QGraphicsScene);
 CustomQGraphicsScene.prototype.mouseDoubleClickEvent = function(event)
 {
     var item_index = Math.floor((event.scenePos().y() - 5)/(96+5));
-    var id = currentQuery[item_index * 10];
-
+    var id = currentQuery[item_index * 11];
     if (id == null) return;
 
-    if (this.comboGroupBy.currentIndex == 1) playlistImporter.addTrack(id);
-    if (this.comboGroupBy.currentIndex == 2) playlistImporter.addArtist(id);
-    if (this.comboGroupBy.currentIndex == 3) playlistImporter.addAlbumArtist(id);
-    if (this.comboGroupBy.currentIndex == 4) playlistImporter.addAlbum(id);
-	if (this.comboGroupBy.currentIndex == 5) playlistImporter.addGenre(id);
+    if (indexGr == 1) playlistImporter.addTrack(id);
+    if (indexGr == 2) playlistImporter.addArtist(id);
+    if (indexGr == 3) playlistImporter.addAlbumArtist(id);
+    if (indexGr == 4) playlistImporter.addAlbum(id);
+	if (indexGr == 5) playlistImporter.addGenre(id);
 }
 
 

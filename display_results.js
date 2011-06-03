@@ -89,7 +89,7 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
         this.common.addAlbumCover(frame, imagePath);
         this.common.addWeightRating(frame, weight, maxWeight);
         this.common.addSimpleText(frame, query[i+2],  0, true);
-        this.common.addSimpleText(frame, query[i+9] + (indexGr != 1 ? " " + (parseInt(query[i+9])>1 ? qsTr("albums") : qsTr("album")) : ""), this.common.font_bold_height, false);
+        this.common.addSimpleText(frame, query[i+9] + (indexGr != 1 && indexGr != 4 ? " " + (parseInt(query[i+9])>1 ? qsTr("albums") : qsTr("album")) : ""), this.common.font_bold_height, false);
         this.common.addSimpleText(frame, query[i+8] + (indexGr != 1 ? " " + (parseInt(query[i+8])>1 ? qsTr("tracks") : qsTr("track")) : ""), this.common.font_bold_height + this.common.font_height, false);
         this.addRating(frame, query[i+3]);
         this.addEmblemImage(frame, this.pixmap_score, 0);

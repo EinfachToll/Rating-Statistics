@@ -70,6 +70,8 @@ function createFilterString(album, artist, genre, year)
     if (album  != "") f += " AND upper(a.name) like upper('%" + album  + "%')";
     if (genre  != "") f += " AND upper(g.name) like upper('%" + genre  + "%')";
     if (year   != "") f += " AND y.name = '"     + year   + "'";
+	f = "";
+    if (artist != "") f = " AND upper(b.name) like upper('%" + artist + "%') OR upper(a.name) like upper('%" + artist  + "%') OR upper(g.name) like upper('%" + artist  + "%') OR y.name = '"+ artist +"'";
 	return f;
 }
 
@@ -99,51 +101,68 @@ function fillTracksPage(album, artist, genre, year, orderby)
 
 function fillAlbumsPage(album, artist, genre, year, orderby)
 {
-    var                                     sql_query  = " SELECT";
-                                            sql_query += "     b.id,";
-                                            sql_query += "     i.path,";
-                                            sql_query += "     b.name,";
-                                            sql_query += "     concat('by ', if (b.artist is not null,";
-                                            sql_query += "         (SELECT a.name FROM artists a WHERE a.id = b.artist),";
-                                            sql_query += "         concat((SELECT count(distinct t.artist) from tracks t where t.album = c.id), ' artists') )),";
-                                            sql_query += "     null,";
-                                            sql_query += "     round(c.rating,1),";
-                                            sql_query += "     round(c.score, 0),";
-                                            sql_query += "     round(c.playcount, 0),";
-                                            sql_query += "     c.length,";
-                                            sql_query +=       createWeightString(3) + " as weight";
-                                            sql_query += "     FROM (";
-                                            sql_query += "         SELECT";
-                                            sql_query += "             b.id,";
-                                            sql_query += "             sum(t.length) as length,";
-                                            sql_query += "             avg(if( s.rating is null or s.rating < 1,  5, s.rating)) as rating,";
-                                            sql_query += "             avg(if( s.score  is null or s.score  < 1, 50, s.score)) as score,";
-                                            sql_query += "             avg(if( s.playcount is null,               0, s.playcount)) as playcount";
-                                            sql_query += "         FROM tracks t LEFT JOIN statistics s ON (s.url = t.url), albums b";
-    if (artist != "")                       sql_query += "                                                                          , amarok.artists a";
-    if (genre  != "")                       sql_query += "                                                                          , amarok.genres  g";
-    if (year   != "")                       sql_query += "                                                                          , amarok.years   y";
-                                            sql_query += "             WHERE t.album = b.id";
-    if (config.skipUnrated==Qt.Checked)     sql_query += "             AND s.id is not null AND s.rating > 0";
-    if (artist != "")                       sql_query += "             AND t.artist = a.id AND upper(a.name) like upper('%" + artist + "%')";
-    if (genre  != "")                       sql_query += "             AND t.genre  = g.id AND upper(g.name) like upper('%" + genre  + "%')";
-    if (year   != "")                       sql_query += "             AND t.year   = y.id AND y.name = '"     + year   + "'";
-                                            sql_query += "             GROUP BY b.id";
-                                            sql_query += "             HAVING count(*) >= " + config.minTracksPerAlbum;
-                                            sql_query += "         ) c JOIN albums b ON (c.id=b.id) LEFT JOIN images i ON (b.image = i.id) ";
-                                            sql_query +=       createOrderString(3, orderby);
-                                            sql_query += "     LIMIT " + config.resultsLimit;
+	var sql_query = "SELECT \
+				 a.id, \
+				 i.path as bild, \
+				 a.name, \
+				 round(c.bewertung, 1), \
+				 wiedergabezaehler, \
+				 round(c.punkte, 0), \
+				 wichtung, \
+				 laenge, \
+				 anzlieder, \
+				 c.name, \
+				 round(jahr, 0) \
+  FROM ( \
+		SELECT t.album, \
+		avg(if(s.rating <  1, null, s.rating)) as bewertung, \
+		avg(s.score) as punkte, \
+		sum(s.playcount) as wiedergabezaehler, \
+		sum(t.length) as laenge, \
+	   count(if(s.rating <  1, null, s.rating)) as anzbew, \
+	   count(*) as anzlieder, "
+	   + createWeightString(3) + " as wichtung, \
+	   avg(if(y.name <  1, null, y.name)) as jahr, \
+		b.name \
+		  FROM tracks t LEFT JOIN statistics s ON (s.url =  t.url) LEFT JOIN years y on (t.year =  y.id) LEFT JOIN genres g ON (t.genre =  g.id) LEFT join artists b on (t.artist = b.id) \
+		 WHERE true "
+		+ createFilterString(album, artist, genre, year)
+		 + " GROUP BY t.album "
+		 + createOrderString(3, orderby)
+		 + " LIMIT " + config.resultsLimit + "\
+       ) c LEFT JOIN albums a on (c.album = a.id) LEFT join images i on (a.image = i.id)";
 
     return sql_query;
 }
 
-//soweit fertig
+function fillAlbumArtistsPage(album, artist, genre, year, orderby)
+{
+	var sql_query = "SELECT \
+		c.artist, (SELECT path from images i LEFT JOIN albums a ON (i.id = a.image) WHERE a.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1)  as bild, c.name, round(c.bewertung, 1), wiedergabezaehler, round(c.punkte, 0), wichtung, laenge, anzlieder, anzalben, round(jahr, 0) \
+  FROM ( \
+		SELECT a.artist, avg(if(s.rating <  1, null, s.rating)) as bewertung, avg(s.score) as punkte, sum(s.playcount) as wiedergabezaehler, sum(t.length) as laenge, \
+		       count(if(s.rating < 1, null, s.rating)) as anzbew, count(distinct t.album) as anzalben, \
+			   count(*) as anzlieder, "
+				+ createWeightString(3) +
+				" as wichtung, \
+			   avg(if(y.name <  1, null, y.name)) as jahr, b.name \
+		  FROM tracks t LEFT JOIN statistics s ON (s.url =  t.url) LEFT JOIN years y on (t.year =  y.id) LEFT JOIN genres g ON (t.genre = g.id) \
+		  left join albums a on (t.album = a.id) LEFT join artists b on (a.artist = b.id) LEFT join images i on (a.image = i.id) \
+		 WHERE true "
+		 + createFilterString(album, artist, genre, year)
+		 + " GROUP BY a.artist "
+		 + createOrderString(3, orderby)
+		 + " LIMIT " + config.resultsLimit + 
+       " ) c";
+
+	return sql_query;
+}
 function fillArtistsPage(album, artist, genre, year, orderby)
 {
-sql_query = "SELECT \
-		b.id, \
+var sql_query = "SELECT \
+		c.artist, \
 		(SELECT path from images i LEFT JOIN albums a ON (i.id = a.image) WHERE a.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1) as bild, \
-		b.name, \
+		c.name, \
 		round(c.bewertung,1), \
 		wiedergabezaehler, \
 		round(c.punkte, 0), \
@@ -155,6 +174,7 @@ sql_query = "SELECT \
 	FROM ( \
 	SELECT \
 		t.artist, \
+		b.name, \
 		count(distinct t.album) as anzalben, \
 		avg(if(s.rating < 1,  null, s.rating)) as bewertung, \
 		avg(s.score) as punkte, \
@@ -167,13 +187,13 @@ sql_query = "SELECT \
 		as wichtung, \
 		avg(if(y.name < 1, null, y.name)) as jahr \
 	FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y on (t.year=y.id) \
-	LEFT JOIN genres g ON (t.genre=g.id) \
+	LEFT JOIN genres g ON (t.genre=g.id) LEFT JOIN artists b ON (t.artist = b.id) LEFT JOIN albums a ON (t.album = a.id) \
 	WHERE true "
 	+ createFilterString(album, artist, genre, year)
 	+ " GROUP BY t.artist "
 	+ createOrderString(1, orderby)
 	+ " LIMIT " + config.resultsLimit + "\
-	) c JOIN artists b on (c.artist = b.id)";
+	) c";
 
     return sql_query;
 }
@@ -181,35 +201,32 @@ sql_query = "SELECT \
 
 function fillGenresPage(album, artist, genre, year, orderby)
 {
-    var                                     sql_query  = " SELECT";
-                                            sql_query += "     c.id,";
-                                            sql_query += "     null,";
-                                            sql_query += "     c.name, concat('(',artistcount,' artists)'), null,";
-                                            sql_query += "     round(c.rating,1),";
-                                            sql_query += "     round(c.score, 0),";
-                                            sql_query += "     playcount,";
-                                            sql_query += "     length,";
-                                            sql_query +=       createWeightString(4) + " as weight";
-                                            sql_query += " FROM (";
-                                            sql_query += "     SELECT";
-                                            sql_query += "         g.id,";
-                                            sql_query += "         g.name,";
-                                            sql_query += "         count(distinct t.artist) as artistcount,";
-                                            sql_query += "         avg(if( s.rating is null or s.rating < 1,  5, s.rating)) as rating,";
-                                            sql_query += "         avg(if( s.score  is null or s.score  < 1, 50, s.score)) as score,";
-                                            sql_query += "         if(sum(s.playcount) is null, 0, sum(s.playcount)) as playcount,";
-                                            sql_query += "         sum(t.length) as length";
-                                            sql_query += "     FROM genres g STRAIGHT_JOIN tracks t on (g.id = t.genre)";
-                                            sql_query += "                   LEFT JOIN statistics s ON (s.url = t.url)";
-    if (year   != "")                       sql_query += "                                                             , amarok.years   y";
-                                            sql_query += "         WHERE 1=1";
-    if (config.skipUnrated==Qt.Checked)     sql_query += "         AND s.id is not null AND s.rating > 0";
-    if (year   != "")                       sql_query += "         AND t.year = y.id AND y.name = '" + year + "'";
-                                            sql_query += "         GROUP BY g.id";
-                                            sql_query += "         HAVING count(*) >= " + config.minTracksPerAlbum;
-                                            sql_query += "     ) c ";
-                                            sql_query +=   createOrderString(4, orderby);
-                                            sql_query += " LIMIT " + config.resultsLimit;
+	var sql_query = "SELECT \
+		c.genre, \
+		NULL as bild, \
+		c.name,  \
+		round(c.bewertung, 1), \
+		wiedergabezaehler, \
+		round(c.punkte, 0), \
+		wichtung, \
+		laenge, \
+		anzlieder, \
+		anzalben, \
+		round(jahr, 0) \
+  FROM ( \
+		SELECT t.genre, g.name, avg(if(s.rating <  1, null, s.rating)) as bewertung, avg(s.score) as punkte, sum(s.playcount) as wiedergabezaehler, sum(t.length) as laenge, \
+		       count(if(s.rating < 1, null, s.rating)) as anzbew, \
+			   count(*) as anzlieder, count(distinct t.album) as anzalben, "
+			   + createWeightString(5)
+			   + " as wichtung, \
+			   avg(if(y.name <  1, null, y.name)) as jahr \
+		  FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y on (t.year =  y.id) LEFT JOIN genres g ON (t.genre = g.id) LEFT join artists b on (t.artist = b.id) LEFT JOIN albums a on (t.album = a.id) \
+		 WHERE true "
+		 + createFilterString(album, artist, genre, year)
+		 + " GROUP BY t.genre "
+		 + createOrderString(5, orderby)
+		 + " LIMIT " + config.resultsLimit + " \
+       ) c";
     return sql_query;
 }
 
@@ -238,7 +255,7 @@ function fillGlobalStatisticsPage()
 	sql_query += "     ,   (select count(*) from (select distinct t.album from tracks t JOIN (select * from statistics where rating > 0) s ON (s.url = t.url) group by t.album having count(*) >= " + config.minTracksPerAlbum + ") x ) as rated_albums";
 	sql_query += "     ,   (select count(*) from (select distinct t.artist from tracks t JOIN (select * from statistics where rating > 0) s ON (s.url = t.url) group by t.album having count(*) >= " + config.minTracksPerAlbum + ") x ) as rated_artists";
 	sql_query += "     ,   (select avg(rating) from statistics where rating > 0) as avg_rating";
-	sql_query += "     ,   (select avg(score) from statistics where score > 0) as avg_score";
+	sql_query += "     ,   (select avg(if(score is NULL, 0, score)) from statistics) as avg_score";
 	sql_query += "     ,   (select avg(length) from tracks) as avg_length";
 	sql_query += "     FROM";
 	sql_query += "         dual";
