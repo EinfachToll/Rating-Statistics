@@ -156,7 +156,7 @@ Configuration.prototype.draw = function(parentWidget)
     this.sliderWeightScore           = new QSlider(Qt.Horizontal, parentWidget);
     this.sliderWeightLength          = new QSlider(Qt.Horizontal, parentWidget);
     this.sliderWeightPlaycount       = new QSlider(Qt.Horizontal, parentWidget);
-    this.buttonReload                = new QPushButton(qsTr("Reload"),  parentWidget);
+    //this.buttonReload                = new QPushButton(qsTr("Reload"),  parentWidget);
     this.buttonApply                 = new QPushButton(qsTr("Apply"),   parentWidget);
     this.labelLocale                 = new QLabel("Sorry, you will need to re-open this window and/or disable/enable\nthis script for locale changes to take effect, for now.", parentWidget, 0);
     this.comboLocale                 = new QComboBox(parentWidget);
@@ -194,7 +194,7 @@ Configuration.prototype.draw = function(parentWidget)
     this.groupLayoutOrdering.addWidget(this.labelWeightLength,         3, 0);
     this.groupLayoutOrdering.addWidget(this.sliderWeightLength,        3, 1);
     this.groupLayoutButtons.addWidget(this.buttonFrame,                0, 0, 1, 4);
-    this.groupLayoutButtons.addWidget(this.buttonReload,               1, 2, 1, 1);
+    //this.groupLayoutButtons.addWidget(this.buttonReload,               1, 2, 1, 1);
     this.groupLayoutButtons.addWidget(this.buttonApply,                1, 3, 1, 1);
     this.groupLayoutLocale.addWidget(this.labelLocale,                 0, 0);
     this.groupLayoutLocale.addWidget(this.comboLocale,                 1, 0);
@@ -212,7 +212,7 @@ Configuration.prototype.draw = function(parentWidget)
     this.mainLayout.addWidget(this.groupBoxButtons,        4, 0);
 
     this.buttonApply.clicked.connect( this, this.onConfigurationApply);
-    this.buttonReload.clicked.connect(this, this.showConfiguration);
+    //this.buttonReload.clicked.connect(this, this.showConfiguration);
 
 
     this.checkSkipUnrated.toolTip      = qsTr("If set, any tracks that do not have a rating set are not displayed.\n"

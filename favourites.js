@@ -9,6 +9,7 @@ Importer.include("display_graph.js");
 
 var currentQuery = new Array();
 var indexGr = 0;
+var indexOrd = 0;
 
 var icon_statistics		= new QIcon(Amarok.Info.iconPath( "amarok_mostplayed", 16));
 var icon_track			= new QIcon(Amarok.Info.iconPath( "filename-title-amarok", 16));
@@ -73,25 +74,18 @@ FavouritesTab.prototype.draw = function(parentWidget)
     msg("Drawing favourites tab...");
     this.mainLayout         = new QVBoxLayout(parentWidget);
 
-    this.groupBoxSearch     = new QGroupBox(); //qsTr("Query Parameters"));
+    this.groupBoxSearch     = new QGroupBox();
     this.groupBoxResults    = new QGroupBox();
     this.groupLayoutSearch  = new QGridLayout();
     this.groupLayoutResults = new QVBoxLayout();
     this.groupLayoutSearch.spacing = 0;
 
-    this.searchLabelAlbum   = new QLabel(qsTr("Album: "),  parentWidget, 0);
-    this.searchLabelArtist  = new QLabel(qsTr("Artist: "), parentWidget, 0);
-    this.searchLabelGenre   = new QLabel(qsTr("Genre: "),  parentWidget, 0);
-    this.searchLabelYear    = new QLabel(qsTr("Year: "),   parentWidget, 0);
-    this.searchLabelType    = new QLabel(qsTr("Query Type: "), parentWidget, 0);
-    this.searchBoxAlbum     = new QLineEdit(parentWidget);
-    this.searchBoxArtist    = new QLineEdit(parentWidget);
-    this.searchBoxGenre     = new QLineEdit(parentWidget);
-    this.searchBoxYear      = new QLineEdit(parentWidget);
-    this.comboGroupBy	    = new QComboBox(parentWidget);
-	this.comboOrderBy		= new QComboBox(parentWidget);
-    this.searchButtonClear  = new QPushButton(qsTr("Clear"), parentWidget);
-    this.searchButtonSubmit = new QPushButton(qsTr("Submit"), parentWidget);
+    this.filterLabel			= new QLabel(qsTr("Filter: "), parentWidget);
+    this.groupByLabel			= new QLabel(qsTr("Show: "), parentWidget);
+	this.orderByLabel			= new QLabel(qsTr("Order by: "), parentWidget);
+    this.filterBox				= new QLineEdit(parentWidget);
+    this.comboGroupBy			= new QComboBox(parentWidget);
+	this.comboOrderBy			= new QComboBox(parentWidget);
 
     this.scrollAreaData     = new CustomQGraphicsScene(0, 0, 350, 600, parentWidget);
     this.scrollAreaResults  = new QGraphicsView(this.scrollAreaData, parentWidget);
@@ -114,19 +108,12 @@ FavouritesTab.prototype.draw = function(parentWidget)
 	this.comboOrderBy.addItem(icon_numalbums,	qsTr("Number of Albums"));
 	this.comboOrderBy.addItem(icon_year,		qsTr("Year"));
 
-    this.groupLayoutSearch.addWidget(this.searchLabelArtist,  0, 0, 1, 1, Qt.AlignRight);
-    this.groupLayoutSearch.addWidget(this.searchBoxArtist,    0, 1, 1, 2);
-    this.groupLayoutSearch.addWidget(this.searchLabelGenre,   0, 3, 1, 1, Qt.AlignRight);
-    this.groupLayoutSearch.addWidget(this.searchBoxGenre,     0, 4, 1, 2);
-    this.groupLayoutSearch.addWidget(this.searchLabelAlbum,   1, 0, 1, 1, Qt.AlignRight);
-    this.groupLayoutSearch.addWidget(this.searchBoxAlbum,     1, 1, 1, 2);
-    this.groupLayoutSearch.addWidget(this.searchLabelYear,    1, 3, 1, 1, Qt.AlignRight);
-    this.groupLayoutSearch.addWidget(this.searchBoxYear,      1, 4, 1, 2);
-    this.groupLayoutSearch.addWidget(this.searchLabelType,    2, 0, 1, 1, Qt.AlignRight);
-    this.groupLayoutSearch.addWidget(this.comboGroupBy,       2, 1, 1, 2);
-	this.groupLayoutSearch.addWidget(this.comboOrderBy,		  2, 3, 1, 2);
-    this.groupLayoutSearch.addWidget(this.searchButtonClear,  3, 4, 1, 1);
-    this.groupLayoutSearch.addWidget(this.searchButtonSubmit, 3, 5, 1, 1);
+    this.groupLayoutSearch.addWidget(this.filterLabel,		0, 0, 1, 1, Qt.AlignRight);
+    this.groupLayoutSearch.addWidget(this.filterBox,		0, 1, 1, 5);
+    this.groupLayoutSearch.addWidget(this.groupByLabel,		1, 0, 1, 1, Qt.AlignRight);
+    this.groupLayoutSearch.addWidget(this.comboGroupBy,		1, 1, 1, 2);
+	this.groupLayoutSearch.addWidget(this.orderByLabel,		1, 3, 1, 1, Qt.AlignRight);
+	this.groupLayoutSearch.addWidget(this.comboOrderBy,		1, 4, 1, 2);
 
     this.groupLayoutResults.addWidget(this.scrollAreaResults, 0, 0);
 
@@ -137,17 +124,9 @@ FavouritesTab.prototype.draw = function(parentWidget)
 
     this.comboGroupBy['currentIndexChanged(int)'].connect(this, this.onQueryTypeChanged);
     this.comboOrderBy['currentIndexChanged(int)'].connect(this, this.onQueryTypeChanged);
-    this.searchButtonClear.clicked.connect(    this, this.onQueryCleared);
-    this.searchBoxAlbum.returnPressed.connect( this, this.onQuerySubmitted);
-    this.searchBoxArtist.returnPressed.connect(this, this.onQuerySubmitted);
-    this.searchBoxGenre.returnPressed.connect( this, this.onQuerySubmitted);
-    this.searchBoxYear.returnPressed.connect(  this, this.onQuerySubmitted);
-    this.searchButtonSubmit.clicked.connect(   this, this.onQuerySubmitted);
+    this.filterBox.returnPressed.connect( this, this.onQuerySubmitted);
 
-    this.searchBoxAlbum.toolTip    = qsTr("Filter results by album name.");
-    this.searchBoxArtist.toolTip   = qsTr("Filter results by artist name.");
-    this.searchBoxGenre.toolTip    = qsTr("Filter results by genre name.");
-    this.searchBoxYear.toolTip     = qsTr("Filter results by year.");
+    this.filterBox.toolTip    = qsTr("Filter by artist, album, album artist, genre or year.");
     //this.scrollAreaResults.toolTip = qsTr("You may double-click on tracks, albums and artists to queue them to your Amarok playlist.");
 
     msg("Finished drawing favourites tab...");
@@ -178,21 +157,10 @@ FavouritesTab.prototype.resultsClear = function()
     this.scrollAreaData.sceneRect = new QRectF(0,0,1,1);
 }
 
-FavouritesTab.prototype.onQueryCleared = function(index)
-{
-    msg("Query Cleared");
-    this.searchBoxAlbum.text  = "";
-    this.searchBoxArtist.text = "";
-    this.searchBoxGenre.text  = "";
-    this.searchBoxYear.text   = "";
-    //this.resultsClear();
-	this.onQueryTypeChanged(this.comboGroupBy.currentIndex);
-}
-
 FavouritesTab.prototype.onQuerySubmitted = function(index)
 {
     msg("Query Submitted");
-    this.onQueryTypeChanged(this.comboGroupBy.currentIndex);
+    this.onQueryTypeChanged();
 }
 
 FavouritesTab.prototype.onQueryTypeChanged = function()
@@ -205,46 +173,39 @@ FavouritesTab.prototype.onQueryTypeChanged = function()
     this.resultsShowWorking();
 
     if (indexGr == 0){
-        this.searchBoxAlbum.enabled  = false;
-        this.searchBoxArtist.enabled = false;
-        this.searchBoxGenre.enabled  = false;
-        this.searchBoxYear.enabled   = false;
-		this.comboOrderBy.enabled	 = false;
+		this.filterBox.enabled = false;
         this.displayStatistics(fillGlobalStatisticsPage());
     } else {
-        this.searchBoxAlbum.enabled  = true;
-        this.searchBoxArtist.enabled = true;
-        this.searchBoxGenre.enabled  = true;
-        this.searchBoxYear.enabled   = true;
+		this.filterBox.enabled = true;
 		this.comboOrderBy.enabled	 = true;
 	}
 
     if (indexGr == 1){
-        this.displayResults(fillTracksPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
+        this.displayResults(fillTracksPage(this.filterBox.text, indexOrd), indexOrd);
     }
 
     if (indexGr == 2){
-        this.displayResults(fillArtistsPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
+        this.displayResults(fillArtistsPage(this.filterBox.text, indexOrd), indexOrd);
     }
 
 	if (indexGr == 3){
-		this.displayResults(fillAlbumArtistsPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
+		this.displayResults(fillAlbumArtistsPage(this.filterBox.text, indexOrd), indexOrd);
 	}
 
     if (indexGr == 4){
-        this.displayResults(fillAlbumsPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
+        this.displayResults(fillAlbumsPage(this.filterBox.text, indexOrd), indexOrd);
     }
 
     if (indexGr == 5){
-        this.displayResults(fillGenresPage(this.searchBoxAlbum.text, this.searchBoxArtist.text, this.searchBoxGenre.text, this.searchBoxYear.text, indexOrd), indexOrd);
+        this.displayResults(fillGenresPage(this.filterBox.text, indexOrd), indexOrd);
     }
 
     if (indexGr == 6){
-        this.displayGraph(fillRatingOverTimePage(this.searchBoxArtist.text, this.searchBoxGenre.text), 10);
+        this.displayGraph(fillRatingOverTimePage(this.filterBox.text, indexOrd), 10);
     }
 
     if (indexGr == 7){
-        this.displayGraph(fillScoreOverTimePage(this.searchBoxArtist.text, this.searchBoxGenre.text), 100);
+        this.displayGraph(fillScoreOverTimePage(this.filterBox.text, indexOrd), 100);
     }
 
     this.mutex.unlock();
