@@ -7,32 +7,31 @@ function createOrderString(groupby, orderby)
 	l = "";
 	switch(orderby) {
 		case 0:
-			l = (groupby != 1 ? " HAVING anzbew >= " + config.minTracksPerAlbum : "" ) + " ORDER BY bewertung ";
+			l = (groupby != 1 && groupby != 6 ? " HAVING anzbew >= " + config.minTracksPerAlbum : "" ) + (groupby != 6 ? " ORDER BY " : "") + "bewertung ";
 			break;
 		case 1:
-			l = " ORDER BY wiedergabezaehler ";
+			l = (groupby != 6 ? " ORDER BY " : "") + "wiedergabezaehler ";
 			break;
 		case 2:
-			l = " ORDER BY punkte ";
+			l = (groupby != 6 ? " ORDER BY " : "") + "punkte ";
 			break;
 		case 3:
-			l = (config.weightRating > 0 && groupby != 1 ? " HAVING anzbew >= 1 " : "" ) + " ORDER BY wichtung ";
+			l = (config.weightRating > 0 && groupby != 1 && groupby != 6 ? " HAVING anzbew >= 1 " : "" ) + (groupby != 6 ? " ORDER BY " : "") + "wichtung ";
 			break;
 		case 4:
-			l = " ORDER BY laenge ";
+			l = (groupby != 6 ? " ORDER BY " : "") + "laenge ";
 			break;
 		case 5:
-			l = " ORDER BY anzlieder ";
+			l = (groupby != 6 ? " ORDER BY " : "") + "anzlieder ";
 			break;
 		case 6:
-			l = " ORDER BY anzalben ";
+			l = (groupby != 6 ? " ORDER BY " : "") + "anzalben ";
 			break;
 		default:
-			l = " ORDER BY jahr ";
+			l = (groupby != 6 ? " ORDER BY " : "") + "jahr ";
 			break;
 	}
-
-	if (config.reverseResults==Qt.Unchecked) l += "DESC ";
+	if (config.reverseResults==Qt.Unchecked && groupby != 6) l += "DESC ";
 
     return l;
 }
@@ -70,14 +69,29 @@ function createFilterString(filterText)
 		var f = " WHERE true ";
 		var filterTerms = filterText.split(" ");
 		for(var i = 0; i < filterTerms.length; ++i)
-			 f += " AND (upper(b.name) like upper('%" + filterTerms[i] + "%') OR upper(a.name) like upper('%" + filterTerms[i]  + "%') OR upper(b1.name) LIKE upper('%" + filterTerms[i] + "%') OR upper(g.name) like upper('%" + filterTerms[i]  + "%') OR y.name LIKE '%"+ filterTerms[i] +"%')";
+		{
+			f += " AND (upper(b.name) like upper('%" + filterTerms[i] + "%') OR upper(a.name) like upper('%" + filterTerms[i]  + "%') OR upper(b1.name) LIKE upper('%" + filterTerms[i] + "%') OR upper(g.name) like upper('%" + filterTerms[i]  + "%') OR y.name LIKE '%"+ filterTerms[i] +"%'";
+			var regex = /^(\d+)-(\d+)/;
+			if(filterTerms[i].match(regex))
+			{
+				var res = regex.exec(filterTerms[i]);
+				var now = new Date();
+				for(var r=1; r<=2; ++r)
+				{
+					if(parseInt(res[r]) <= now.getFullYear() - 2000) res[r] = String(parseInt(res[r]) + 2000);
+					else
+						if(parseInt(res[r]) <= 99) res[r] = String(parseInt(res[r]) + 1900);
+				}
+				f += " OR y.name BETWEEN " + res[1] + " AND " + res[2];
+			}
+			f += ")";
+		}
 
 		msg(f);
 		return f;
 	}
 	else return "";
 }
-
 
 function fillTracksPage(filterText, orderby)
 {
@@ -264,45 +278,18 @@ function fillGlobalStatisticsPage()
 }
 
 
-function fillRatingOverTimePage(filterText)
+function fillRatingOverTimePage(filterText, indexOrd)
 {
-    var                                     sql_query  = " SELECT";
-                                            sql_query += "     y.name";
-                                            sql_query += " ,   avg(s.rating)";
-                                            sql_query += " FROM";
-                                            sql_query += "     tracks t";
-                                            sql_query += "     JOIN (select id, name from years where name != '0') y ON (t.year = y.id)";
-    if (config.skipUnrated==Qt.Checked)     sql_query += "     JOIN (select url, rating from statistics where rating > 0) s ON (t.url = s.url)";
-    if (config.skipUnrated!=Qt.Checked)     sql_query += "     JOIN (select url, if(rating is null or rating < 1,  5, rating) as rating  from statistics) s ON (t.url = s.url)";
-    //if (artist != "")                       sql_query += "     JOIN (select id from artists where upper(name) like upper('%" + artist + "%')) a on (t.artist = a.id)";
-    //if (genre  != "")                       sql_query += "     JOIN (select id from genres where upper(name) like upper('%" + genre + "%')) g on (t.genre = g.id)";
-                                            sql_query += " GROUP BY";
-                                            sql_query += "     t.year";
-                                            sql_query += " HAVING count(*) >= " + config.minTracksPerAlbum;
-                                            sql_query += " ORDER BY";
-                                            sql_query += "     y.name";
-                                            sql_query += " ;";
+	var sql_query = "SELECT c.name, c." + createOrderString(6, indexOrd) +
+		  "FROM ( \
+		SELECT t.year, y.name, avg(if(s.rating < 1, null, s.rating)) as bewertung, avg(s.score) as punkte, sum(s.playcount) as wiedergabezaehler, \
+		       sum(t.length) as laenge, count(if(s.rating < 1, null, s.rating)) as anzbew, \
+			   count(*) as anzlieder, count(distinct t.album) as anzalben, " + createWeightString(6) + " as wichtung \
+		  FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y on (t.year = y.id) LEFT JOIN genres g ON (t.genre = g.id) LEFT join artists b on (t.artist = b.id) LEFT JOIN albums a on (t.album = a.id) LEFT JOIN artists b1 ON (a.artist = b1.id) "
+		 + createFilterString(filterText)
+		 + " GROUP BY t.year \
+		HAVING name != 0 " + (indexOrd == 0 ? (" AND anzbew >= " + config.minTracksPerAlbum) : "")
+		 + " ORDER BY 2 \
+       ) c";
     return sql_query;
 }
-
-function fillScoreOverTimePage(filterText)
-{
-    var                                     sql_query  = " SELECT";
-                                            sql_query += "     y.name";
-                                            sql_query += " ,   avg(s.score)";
-                                            sql_query += " FROM";
-                                            sql_query += "     tracks t";
-                                            sql_query += "     JOIN (select id, name from years where name != '0') y ON (t.year = y.id)";
-    if (config.skipUnrated==Qt.Checked)     sql_query += "     JOIN (select url, score from statistics where score > 0) s ON (t.url = s.url)";
-    if (config.skipUnrated!=Qt.Checked)     sql_query += "     JOIN (select url, if(score is null or score < 1,  50, score) as score  from statistics) s ON (t.url = s.url)";
-    if (artist != "")                       sql_query += "     JOIN (select id from artists where upper(name) like upper('%" + artist + "%')) a on (t.artist = a.id)";
-    if (genre  != "")                       sql_query += "     JOIN (select id from genres where upper(name) like upper('%" + genre + "%)') g on (t.genre = g.id)";
-                                            sql_query += " GROUP BY";
-                                            sql_query += "     t.year";
-                                            sql_query += " HAVING count(*) >= " + config.minTracksPerAlbum;
-                                            sql_query += " ORDER BY";
-                                            sql_query += "     y.name";
-                                            sql_query += " ;";
-    return sql_query;
-}
-

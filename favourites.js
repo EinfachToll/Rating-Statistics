@@ -201,11 +201,7 @@ FavouritesTab.prototype.onQueryTypeChanged = function()
     }
 
     if (indexGr == 6){
-        this.displayGraph(fillRatingOverTimePage(this.filterBox.text, indexOrd), 10);
-    }
-
-    if (indexGr == 7){
-        this.displayGraph(fillScoreOverTimePage(this.filterBox.text, indexOrd), 100);
+        this.displayGraph(fillRatingOverTimePage(this.filterBox.text, indexOrd), indexOrd);
     }
 
     this.mutex.unlock();
