@@ -13,7 +13,7 @@ function createOrderString(groupby, orderby)
 			l = (groupby != 6 ? " ORDER BY " : "") + "wiedergabezaehler ";
 			break;
 		case 2:
-			l = (groupby != 6 ? " ORDER BY " : "") + "punkte ";
+			l = (groupby != 1 ? " HAVING anzlieder >= " + config.minTracksPerAlbum : "") + (groupby != 6 ? " ORDER BY " : "") + "punkte ";
 			break;
 		case 3:
 			l = (config.weightRating > 0 && groupby != 1 && groupby != 6 ? " HAVING anzbew >= 1 " : "" ) + (groupby != 6 ? " ORDER BY " : "") + "wichtung ";
@@ -28,7 +28,7 @@ function createOrderString(groupby, orderby)
 			l = (groupby != 6 ? " ORDER BY " : "") + "anzalben ";
 			break;
 		default:
-			l = (groupby != 6 ? " ORDER BY " : "") + "jahr ";
+			l = (groupby != 1 ? " HAVING anzlieder >= " + config.minTracksPerAlbum : "") + (groupby != 6 ? " ORDER BY " : "") + "jahr ";
 			break;
 	}
 	if (config.reverseResults==Qt.Unchecked && groupby != 6) l += "DESC ";
@@ -202,7 +202,7 @@ function fillAlbumsPage(filterText, orderby)
 	   count(*) as anzlieder, "
 	   + createWeightString(4) + " as wichtung, \
 	   avg(if(y.name <  1, null, y.name)) as jahr, \
-		b.name \
+		b1.name \
 		  FROM tracks t LEFT JOIN statistics s ON (s.url =  t.url) LEFT JOIN years y on (t.year =  y.id) LEFT JOIN genres g ON (t.genre =  g.id) LEFT join artists b on (t.artist = b.id) left join albums a ON (t.album=a.id) LEFT JOIN artists b1 ON (a.artist = b1.id) LEFT JOIN images i ON (a.image=i.id) "
 		+ createFilterString(filterText)
 		 + " GROUP BY t.album "

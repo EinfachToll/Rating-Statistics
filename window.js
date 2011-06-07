@@ -29,10 +29,18 @@ function StatisticsWindow()
     this.mainTabWidget.addTab(this.favouritesWidget, qsTr("Favourites"));
     this.mainTabWidget.addTab(this.configurationWidget, qsTr("Configuration"));
 
+	config.buttonApply.clicked.connect( this, this.applyPressed);
+
     this.setCentralWidget(this.mainTabWidget);
 }
 
 StatisticsWindow.prototype = new QMainWindow();
+
+StatisticsWindow.prototype.applyPressed = function()
+{
+	this.mainTabWidget.setCurrentIndex(0);
+	this.favouritesTab.onQuerySubmitted();
+}
 
 StatisticsWindow.prototype.closeEvent = function(CloseEvent)
 {

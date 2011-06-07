@@ -253,5 +253,3 @@ FavouritesTab.prototype.displayGraph = function(query_string, maxValue)
 
     this.graphPainter.drawGraph(this.scrollAreaData, currentQuery, maxValue);
 }
-
-
