@@ -20,12 +20,12 @@ var icon_genre			= new QIcon(Amarok.Info.iconPath( "filename-genre-amarok", 16))
 var icon_year			= new QIcon(Amarok.Info.iconPath( "filename-year-amarok", 16));
 var icon_rating			= new QIcon(Amarok.Info.scriptPath() + "/smallerstar.png");
 var icon_playcount		= new QIcon(Amarok.Info.iconPath( "amarok_playcount", 16));
-var icon_score			= new QIcon(Amarok.Info.iconPath( "love_amarok", 16));
+var icon_score			= new QIcon(Amarok.Info.iconPath( "love-amarok", 16));
 var icon_weight			= new QIcon(Amarok.Info.iconPath( "view-media-visualization-amarok", 16));
 var icon_length			= new QIcon(Amarok.Info.iconPath( "amarok_clock", 16));
 var icon_numtracks		= new QIcon(Amarok.Info.iconPath( "amarok_track", 16));
 var icon_numalbums		= new QIcon(Amarok.Info.iconPath( "filename-track-amarok", 16));
-
+var icon_label			= new QIcon(Amarok.Info.iconPath( "label-amarok", 16));
 
 
 
@@ -56,6 +56,7 @@ CustomQGraphicsScene.prototype.mouseDoubleClickEvent = function(event)
     if (indexGr == 3) playlistImporter.addAlbumArtist(id);
     if (indexGr == 4) playlistImporter.addAlbum(id);
 	if (indexGr == 5) playlistImporter.addGenre(id);
+	if (indexGr == 6) playlistImporter.addLabel(id);
 }
 
 
@@ -80,15 +81,16 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.groupLayoutResults = new QVBoxLayout();
     this.groupLayoutSearch.spacing = 0;
 
-    this.filterLabel			= new QLabel(qsTr("Filter: "), parentWidget);
-    this.groupByLabel			= new QLabel(qsTr("Show: "), parentWidget);
-	this.orderByLabel			= new QLabel(qsTr("Order by: "), parentWidget);
+    this.filterLabel			= new QLabel(qsTr("Filter:"), parentWidget);
+    this.groupByLabel			= new QLabel(qsTr("Show:"), parentWidget);
+	this.orderByLabel			= new QLabel(qsTr("Order by:"), parentWidget);
     this.filterBox				= new QLineEdit(parentWidget);
     this.comboGroupBy			= new QComboBox(parentWidget);
 	this.comboOrderBy			= new QComboBox(parentWidget);
 
     this.scrollAreaData     = new CustomQGraphicsScene(0, 0, 350, 600, parentWidget);
     this.scrollAreaResults  = new QGraphicsView(this.scrollAreaData, parentWidget);
+	this.scrollAreaResults.alignment = Qt.AlignHCenter;
     this.scrollAreaData.backgroundBrush = new QBrush(QApplication.palette().color(QPalette.Button), Qt.SolidPattern);
 
 	this.comboGroupBy.addItem(icon_statistics,	qsTr("Statistics"));
@@ -97,6 +99,7 @@ FavouritesTab.prototype.draw = function(parentWidget)
 	this.comboGroupBy.addItem(icon_albumartist,	qsTr("Album Artists"));
 	this.comboGroupBy.addItem(icon_album,		qsTr("Albums"));
 	this.comboGroupBy.addItem(icon_genre,		qsTr("Genres"));
+	this.comboGroupBy.addItem(icon_label,		qsTr("Labels"));
 	this.comboGroupBy.addItem(icon_year,		qsTr("Years"));
 
 	this.comboOrderBy.addItem(icon_rating,		qsTr("Rating"));
@@ -117,6 +120,8 @@ FavouritesTab.prototype.draw = function(parentWidget)
 
     this.groupLayoutResults.addWidget(this.scrollAreaResults, 0, 0);
 
+	this.groupBoxSearch.flat = true;
+	this.groupBoxResults.flat = true;
     this.groupBoxSearch.setLayout(this.groupLayoutSearch);
     this.groupBoxResults.setLayout(this.groupLayoutResults);
     this.mainLayout.addWidget(this.groupBoxSearch,  0, 0);
@@ -165,6 +170,7 @@ FavouritesTab.prototype.onQuerySubmitted = function(index)
 
 FavouritesTab.prototype.onQueryTypeChanged = function()
 {
+	playlistImporter.filterText = this.filterBox.text;
 	indexGr  = this.comboGroupBy.currentIndex;
 	indexOrd = this.comboOrderBy.currentIndex;
     msg("Query Type changed to index " + indexGr + ", " + indexOrd);
@@ -180,29 +186,26 @@ FavouritesTab.prototype.onQueryTypeChanged = function()
 		this.comboOrderBy.enabled	 = true;
 	}
 
-    if (indexGr == 1){
+    if (indexGr == 1)
         this.displayResults(fillTracksPage(this.filterBox.text, indexOrd), indexOrd);
-    }
 
-    if (indexGr == 2){
+    if (indexGr == 2)
         this.displayResults(fillArtistsPage(this.filterBox.text, indexOrd), indexOrd);
-    }
 
-	if (indexGr == 3){
+	if (indexGr == 3)
 		this.displayResults(fillAlbumArtistsPage(this.filterBox.text, indexOrd), indexOrd);
-	}
 
-    if (indexGr == 4){
+    if (indexGr == 4)
         this.displayResults(fillAlbumsPage(this.filterBox.text, indexOrd), indexOrd);
-    }
 
-    if (indexGr == 5){
+    if (indexGr == 5)
         this.displayResults(fillGenresPage(this.filterBox.text, indexOrd), indexOrd);
-    }
 
-    if (indexGr == 6){
+	if (indexGr == 6)
+		this.displayResults(fillLabelsPage(this.filterBox.text, indexOrd), indexOrd);
+
+    if (indexGr == 7)
         this.displayGraph(fillRatingOverTimePage(this.filterBox.text, indexOrd), indexOrd);
-    }
 
     this.mutex.unlock();
 }

@@ -64,7 +64,7 @@ DisplayCommon.prototype.changeFrameWidth = function(newWidth)
 DisplayCommon.prototype.drawFrame = function(scrollArea, frame_id)
 {
     var frame    = new Frame(0, 0, 0, 0, 0, 0, 0);
-    frame.id     = frame_id
+    frame.id     = frame_id;
     frame.x      = 0;
     frame.y      = frame.id * (this.frame_y + this.frame_spacing) + this.frame_spacing;
     frame.width  = this.frame_x;
@@ -73,7 +73,7 @@ DisplayCommon.prototype.drawFrame = function(scrollArea, frame_id)
     frame.brush  = (frame.id % 2 == 0) ? this.brush_gradient_streight : this.brush_gradient_reversed;
 
     frame.widget = scrollArea.addRect(frame.x, frame.y, frame.width, frame.height, frame.pen, frame.brush);
-    scrollArea.sceneRect = new QRectF(0, 0, frame.x + frame.width, frame.y + frame.height + this.frame_spacing);
+    scrollArea.sceneRect = new QRect(0, 0, frame.x + frame.width - 8, frame.y + frame.height + this.frame_spacing);
 
     return frame;
 }

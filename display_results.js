@@ -66,16 +66,13 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
     msg("Drawing results");
 
     var maxWeight = config.reverseResults == Qt.Unchecked ? query[indexOrd + 3] : query[query.length + indexOrd - 8];
-		/*(config.reverseResults == Qt.Unchecked)
-                    ? (queryType < 5) ? query[9] : query[7]
-                    : (queryType < 5) ? query[query.length - 1] : query[query.length - 3]*/
 
     for( var i = 0; i < query.length; i += 11)
     {
         var frame = this.common.drawFrame(scrollArea, i / 11);
 
-        var imagePath = (query[i+1] != "") ? query[i+1] : Amarok.Info.iconPath(
-                            (indexOrd != 2 ) ? "filename-genre-amarok" : "filename-album-amarok", 64
+        var imagePath = (query[i+1].substr(0, 3) != "ama" && query[i+1] != "") ? query[i+1] : Amarok.Info.iconPath(
+                            (indexGr == 5 ) ? "filename-genre-amarok" : (indexGr == 6 ? "label-amarok" : "filename-album-amarok"), 64
                         );
         var weight = query[i+indexOrd+3];
 
