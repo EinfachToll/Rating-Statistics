@@ -2,9 +2,9 @@ function StatisticsPainter(displayCommon)
 {
     this.common = displayCommon;
 
-    this.icon_collection = Amarok.Info.scriptPath() + "/book_cdgr.png";
-    this.icon_averages = Amarok.Info.scriptPath() + "/kbemusedsrv.png";
-    this.icon_tracks = Amarok.Info.scriptPath() + "/star_halfgr.png";
+    this.icon_collection = Amarok.Info.scriptPath() + "/collectiongreen.png";
+    this.icon_averages = Amarok.Info.scriptPath() + "/notegreen.png";
+    this.icon_tracks = Amarok.Info.scriptPath() + "/halfstargreen.png";
 }
 
 StatisticsPainter.prototype.drawStatistics = function(scrollArea, query)
