@@ -2,20 +2,16 @@ Importer.loadQtBinding( "qt.core" );
 Importer.loadQtBinding( "qt.sql" );
 
 Importer.include("configuration.js");
-Importer.include("exclude_albums.js");
 Importer.include("window.js");
 Importer.include("playlist.js");
 
 function msg( str ){
     Amarok.debug(str);
-	print("+++++++++ " + str);
 }
 
-function sql_exec( query /*sql_query*/ ){
+function sql_exec(query){
 	msg("[SQL] " + query);
-	var res = Amarok.Collection.query( query );
-	msg("So sieht n query aus: " + res);
-	return res;
+	return Amarok.Collection.query(query);
 }
 
 function qsTr(msg){
@@ -58,7 +54,7 @@ function showWindowCallback() {
 
 msg('========== Starting ==========');
 
-if (Amarok.Window.addToolsMenu("rating_statistics", "Rating Statistics", "emblem-favorite-amarok")){
+if (Amarok.Window.addToolsMenu("rating_statistics", qsTr("Rating Statistics"), "emblem-favorite-amarok")){
     var rating_statistics_button = Amarok.Window.ToolsMenu.rating_statistics;
     rating_statistics_button['triggered()'].connect(showWindowCallback);
 } else {

@@ -47,18 +47,31 @@ extend(CustomQGraphicsScene, QGraphicsScene);
 
 CustomQGraphicsScene.prototype.mouseDoubleClickEvent = function(event)
 {
-    var item_index = Math.floor((event.scenePos().y() - 5)/(96+5));
-    var id = currentQuery[item_index * 11];
-    if (id == null) return;
-
-    if (indexGr == 1) playlistImporter.addTrack(id);
-    if (indexGr == 2) playlistImporter.addArtist(id);
-    if (indexGr == 3) playlistImporter.addAlbumArtist(id);
-    if (indexGr == 4) playlistImporter.addAlbum(id);
-	if (indexGr == 5) playlistImporter.addGenre(id);
-	if (indexGr == 6) playlistImporter.addLabel(id);
+	if(indexGr <= 6)
+	{
+		var item_index = Math.floor((event.scenePos().y() - 5)/(96+5));
+		var id = currentQuery[item_index * 11];
+		if (id == null) return;
+		if (indexGr == 1) playlistImporter.addTrack(id);
+		if (indexGr == 2) playlistImporter.addArtist(id);
+		if (indexGr == 3) playlistImporter.addAlbumArtist(id);
+		if (indexGr == 4) playlistImporter.addAlbum(id);
+		if (indexGr == 5) playlistImporter.addGenre(id);
+		if (indexGr == 6) playlistImporter.addLabel(id);
+	} else
+	{
+		var ymax = parseInt(currentQuery[currentQuery.length - 2]);
+		var ymin = parseInt(currentQuery[1]);
+		var cliY = Math.floor((event.scenePos().x() - 10) * (ymax-ymin) / (this.width()-20)) + ymin;
+		var selY = ymin;
+		for(var i=0; i<currentQuery.length; i+=3)
+		{
+			if(parseInt(currentQuery[i+1]) <= cliY) selY = currentQuery[i];
+			else break;
+		}
+		playlistImporter.addYear(selY);
+	}
 }
-
 
 function FavouritesTab(displayCommon)
 {

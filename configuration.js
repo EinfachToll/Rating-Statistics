@@ -180,10 +180,10 @@ Configuration.prototype.draw = function(parentWidget)
 
     //this.groupLayoutTracks.addWidget(this.labelSkipUnrated,            0, 0);
     //this.groupLayoutTracks.addWidget(this.checkSkipUnrated,            0, 1);
-    this.groupLayoutResults.addWidget(this.labelResultsLimit,          0, 0);
-    this.groupLayoutResults.addWidget(this.spinResultsLimit,           0, 1);
-    this.groupLayoutResults.addWidget(this.labelReverseResults,        1, 0);
-    this.groupLayoutResults.addWidget(this.checkReverseResults,        1, 1);
+    this.groupLayoutResults.addWidget(this.labelReverseResults,        0, 0);
+    this.groupLayoutResults.addWidget(this.checkReverseResults,        0, 1);
+    this.groupLayoutResults.addWidget(this.labelResultsLimit,          1, 0);
+    this.groupLayoutResults.addWidget(this.spinResultsLimit,           1, 1);
     this.groupLayoutResults.addWidget(this.labelMinTracksPerAlbum,     2, 0);
     this.groupLayoutResults.addWidget(this.spinMinTracksPerAlbum,      2, 1);
     this.groupLayoutOrdering.addWidget(this.labelWeightRating,         0, 0);

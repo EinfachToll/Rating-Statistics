@@ -39,7 +39,7 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd)
     var widget = scrollArea.addRect(0, 0, this.frame_width, this.frame_height, this.common.pen_mid, this.common.brush_solid_dark);
     scrollArea.sceneRect = new QRectF(0, 0, this.frame_width, this.frame_height);
 
-    var min_year       = query[0];
+    var min_year       = query[1];
     var max_year       = query[query.length - 2];
     var years_count    = max_year - min_year + 1;
     var polygon_points = new Array();
@@ -49,7 +49,7 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd)
 	else if(indexOrd == 2) max_value = 100;
 	else
 	{
-		for (var i=1; i<query.length; i+=2)
+		for (var i=2; i<query.length; i+=3)
 			if(max_value < parseInt(query[i])) max_value = parseInt(query[i]);
 		max_value = Math.pow(2, Math.ceil(Math.log(max_value) / Math.LN2));
 	}
@@ -58,12 +58,12 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd)
     polygon_points[0] = new QPointF(this.graph_x, this.graph_y + this.graph_height);
 
     if (years_count > 1){
-        for (var q = 0; q < (query.length / 2); q++){
-            var point_x = this.graph_x + this.graph_width * (query[2*q] - min_year) / (years_count - 1);
-            var point_y = this.graph_y + this.graph_height * (1 - query[2*q + 1] / max_value);
+        for (var q = 0; q < (query.length / 3); q++){
+            var point_x = this.graph_x + this.graph_width * (query[3*q+1] - min_year) / (years_count - 1);
+            var point_y = this.graph_y + this.graph_height * (1 - query[3*q+2] / max_value);
             polygon_points[q + 1] = new QPointF(point_x, point_y);
         }
-        polygon_points[(query.length / 2) + 1] = new QPointF(this.graph_x + this.graph_width, this.graph_y + this.graph_height);
+        polygon_points[(query.length / 3) + 1] = new QPointF(this.graph_x + this.graph_width, this.graph_y + this.graph_height);
     } else {
             var point_y = this.graph_y + this.graph_height * (1 - query[1] / max_value);
             polygon_points[1] = new QPointF(this.graph_x, point_y);
@@ -78,8 +78,7 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd)
     var years_stride = (years_count > 15) ? 5 : (years_count > 5) ? 3 : 1;
 	years_stride = 1;
 
-    //for (var i = 0; i < years_count; i += years_stride){
-	for (var i=0; i<query.length; i+=2)
+	for (var i=1; i<query.length; i+=3)
 	{
         var point_x = this.graph_x + this.graph_width * (query[i] - min_year) / (years_count - 1);
 
