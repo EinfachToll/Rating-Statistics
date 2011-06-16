@@ -1,6 +1,3 @@
-Importer.loadQtBinding( "qt.gui" );
-Importer.loadQtBinding( "qt.uitools" );
-
 function Frame(top_x, top_y, width, height, pen, brush)
 {
     this.x      = top_x;

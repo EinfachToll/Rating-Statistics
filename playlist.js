@@ -1,6 +1,3 @@
-Importer.loadQtBinding( "qt.gui" );
-Importer.loadQtBinding( "qt.uitools" );
-
 function PlaylistImporter(){}
 
 PlaylistImporter.prototype.createFilterString = function(filterText)

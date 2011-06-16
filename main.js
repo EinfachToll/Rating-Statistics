@@ -11,7 +11,9 @@ function msg( str ){
 
 function sql_exec(query){
 	msg("[SQL] " + query);
-	return Amarok.Collection.query(query);
+	var res = Amarok.Collection.query(query);
+	msg(res);
+	return res;
 }
 
 function qsTr(msg){
@@ -65,6 +67,6 @@ var config = new Configuration;
 var playlistImporter = new PlaylistImporter;
 config.loadConfiguration();
 
-showWindowCallback(); //wegmachen!!!
+//showWindowCallback();
 
 msg('========== Finished ==========');

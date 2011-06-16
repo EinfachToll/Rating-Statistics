@@ -6,31 +6,31 @@ function createOrderString(groupby, orderby)
 	l = "";
 	switch(orderby) {
 		case 0:
-			l = (groupby != 1 && groupby != 6 ? " HAVING numRatTr >= " + config.minTracksPerAlbum : "" ) + (groupby != 6 ? " ORDER BY " : "") + "rat ";
+			l = (groupby == 1 ? " AND s.rating > 0 " : (groupby != 7 ? " HAVING numRatTr >= " + config.minTracksPerAlbum : "" )) + (groupby != 7 ? " ORDER BY " : "") + "rat ";
 			break;
 		case 1:
-			l = (groupby != 6 ? " ORDER BY " : "") + "plcount ";
+			l = (groupby != 7 ? " ORDER BY " : "") + "plcount ";
 			break;
 		case 2:
-			l = (groupby != 1 && groupby != 6 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby != 6 ? " ORDER BY " : "") + "sco ";
+			l = (groupby != 1 && groupby != 7 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby != 7 ? " ORDER BY " : "") + "sco ";
 			break;
 		case 3:
-			l = (config.weightRating > 0 && groupby != 1 && groupby != 6 ? " HAVING numRatTr >= 1 " : "" ) + (groupby != 6 ? " ORDER BY " : "") + "wei ";
+			l = (config.weightRating > 0 && groupby != 1 && groupby != 7 ? " HAVING numRatTr >= 1 " : "" ) + (groupby != 7 ? " ORDER BY " : "") + "wei ";
 			break;
 		case 4:
-			l = (groupby != 6 ? " ORDER BY " : "") + "leng ";
+			l = (groupby != 7 ? " ORDER BY " : "") + "leng ";
 			break;
 		case 5:
-			l = (groupby != 6 ? " ORDER BY " : "") + "numTr ";
+			l = (groupby != 7 ? " ORDER BY " : "") + "numTr ";
 			break;
 		case 6:
-			l = (groupby != 6 ? " ORDER BY " : "") + "numAl ";
+			l = (groupby != 7 ? " ORDER BY " : "") + "numAl ";
 			break;
 		default:
-			l = (groupby != 1 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby != 6 ? " ORDER BY " : "") + "yea ";
+			l = (groupby != 1 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby != 7 ? " ORDER BY " : "") + "yea ";
 			break;
 	}
-	if (config.reverseResults==Qt.Unchecked && groupby != 6) l += "DESC ";
+	if (config.reverseResults==Qt.Unchecked && groupby != 7) l += "DESC ";
 
     return l;
 }
@@ -73,8 +73,8 @@ function fillTracksPage(filterText, orderby)
 	s.score AS sco, \
 	" + createWeightString(1) + " AS wei, \
 	t.length AS leng, \
-	b.name, \
 	a.name, \
+	b.name, \
 	y.name AS yea \
 	FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y ON (t.year=y.id) LEFT JOIN albums a ON (a.id = t.album) LEFT JOIN artists b ON (b.id = t.artist) LEFT JOIN images i ON (i.id = a.image) LEFT JOIN genres g ON (g.id = t.genre) LEFT JOIN artists b1 ON (a.artist = b1.id) \
 	WHERE true" + playlistImporter.createFilterString(filterText) +
@@ -230,18 +230,33 @@ function fillLabelsPage(filterText, orderby)
 		SELECT ul.label AS id, l.label, AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
 		       COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, \
 			   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, "
-			   + createWeightString(5)
+			   + createWeightString(6)
 			   + " AS wei, \
 			   AVG(IF(y.name <  1, NULL, y.name)) AS yea \
 		  FROM urls_labels ul LEFT JOIN labels l ON (l.id = ul.label) JOIN tracks t ON (t.url = ul.url) LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y ON (t.year =  y.id) LEFT JOIN genres g ON (t.genre = g.id) LEFT JOIN artists b ON (t.artist = b.id) LEFT JOIN albums a ON (t.album = a.id) LEFT JOIN artists b1 ON (a.artist = b1.id) WHERE true"
 		 + playlistImporter.createFilterString(filterText)
 		 + " GROUP BY ul.label "
-		 + createOrderString(5, orderby)
+		 + createOrderString(6, orderby)
 		 + " LIMIT " + config.resultsLimit + " \
        ) c";
     return sql_query;
 }
 
+function fillRatingOverTimePage(filterText, indexOrd)
+{
+	var sql_query = "SELECT c.yid, c.name, c." + createOrderString(7, indexOrd) +
+		  "FROM ( \
+		SELECT t.year AS yid, y.name, AVG(IF(s.rating < 1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, \
+		       SUM(t.length) AS leng, COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, \
+			   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, " + createWeightString(7) + " AS wei \
+		  FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y ON (t.year = y.id) LEFT JOIN genres g ON (t.genre = g.id) LEFT JOIN artists b ON (t.artist = b.id) LEFT JOIN albums a ON (t.album = a.id) LEFT JOIN artists b1 ON (a.artist = b1.id) WHERE true"
+		 + playlistImporter.createFilterString(filterText)
+		 + " GROUP BY t.year \
+		HAVING name != 0 " + (indexOrd == 0 ? (" AND numRatTr >= " + config.minTracksPerAlbum) : "")
+		 + " ORDER BY 2 \
+       ) c";
+    return sql_query;
+}
 
 function fillGlobalStatisticsPage()
 {
@@ -249,6 +264,7 @@ function fillGlobalStatisticsPage()
 	sql_query += "     a.total_tracks";
 	sql_query += " ,   a.total_albums";
 	sql_query += " ,   a.total_artists";
+	sql_query += " ,   a.sum_length";
 	sql_query += " ,   a.rated_tracks";
 	sql_query += " ,   ROUND(100 * a.rated_tracks / a.total_tracks, 2)";
 	sql_query += " ,   a.rated_albums";
@@ -269,6 +285,7 @@ function fillGlobalStatisticsPage()
 	sql_query += "     ,   (SELECT AVG(rating) FROM statistics WHERE rating > 0) AS avg_rating";
 	sql_query += "     ,   (SELECT AVG(if(score IS NULL, 0, score)) FROM statistics) AS avg_score";
 	sql_query += "     ,   (SELECT AVG(length) FROM tracks) AS avg_length";
+	sql_query += "     ,   (SELECT SUM(length) FROM tracks) AS sum_length";
 	sql_query += "     FROM";
 	sql_query += "         dual";
 	sql_query += " ) a ;";
@@ -276,18 +293,3 @@ function fillGlobalStatisticsPage()
 }
 
 
-function fillRatingOverTimePage(filterText, indexOrd)
-{
-	var sql_query = "SELECT c.yid, c.name, c." + createOrderString(6, indexOrd) +
-		  "FROM ( \
-		SELECT t.year AS yid, y.name, AVG(IF(s.rating < 1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, \
-		       SUM(t.length) AS leng, COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, \
-			   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, " + createWeightString(6) + " AS wei \
-		  FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y ON (t.year = y.id) LEFT JOIN genres g ON (t.genre = g.id) LEFT JOIN artists b ON (t.artist = b.id) LEFT JOIN albums a ON (t.album = a.id) LEFT JOIN artists b1 ON (a.artist = b1.id) WHERE true"
-		 + playlistImporter.createFilterString(filterText)
-		 + " GROUP BY t.year \
-		HAVING name != 0 " + (indexOrd == 0 ? (" AND numRatTr >= " + config.minTracksPerAlbum) : "")
-		 + " ORDER BY 2 \
-       ) c";
-    return sql_query;
-}

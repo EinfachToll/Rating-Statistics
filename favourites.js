@@ -1,6 +1,3 @@
-Importer.loadQtBinding( "qt.gui" );
-Importer.loadQtBinding( "qt.uitools" );
-
 Importer.include("configuration.js");
 Importer.include("queries.js");
 Importer.include("display_results.js");
@@ -144,8 +141,8 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.comboOrderBy['currentIndexChanged(int)'].connect(this, this.onQueryTypeChanged);
     this.filterBox.returnPressed.connect( this, this.onQuerySubmitted);
 
-    this.filterBox.toolTip    = qsTr("Filter by artist, album, album artist, genre or year.");
-    //this.scrollAreaResults.toolTip = qsTr("You may double-click on tracks, albums and artists to queue them to your Amarok playlist.");
+    this.filterBox.toolTip    = qsTr("Filter by artist, album, album artist, genre, label or year. Year ranges work, too.");
+    this.scrollAreaResults.toolTip = qsTr("You can double-click on this items to queue the tracks to your playlist.");
 
     msg("Finished drawing favourites tab...");
 
@@ -169,12 +166,6 @@ FavouritesTab.prototype.resultsShowWorking = function()
     this.scrollAreaData.sceneRect = new QRectF(0,0,1,1);
 }
 
-FavouritesTab.prototype.resultsClear = function()
-{
-    this.scrollAreaData.clear();
-    this.scrollAreaData.sceneRect = new QRectF(0,0,1,1);
-}
-
 FavouritesTab.prototype.onQuerySubmitted = function(index)
 {
     msg("Query Submitted");
@@ -186,17 +177,18 @@ FavouritesTab.prototype.onQueryTypeChanged = function()
 	playlistImporter.filterText = this.filterBox.text;
 	indexGr  = this.comboGroupBy.currentIndex;
 	indexOrd = this.comboOrderBy.currentIndex;
-    msg("Query Type changed to index " + indexGr + ", " + indexOrd);
+    msg("Query Type changed to " + indexGr + ", " + indexOrd);
     if (this.mutex.tryLock(0) == false) return;
 
     this.resultsShowWorking();
 
     if (indexGr == 0){
 		this.filterBox.enabled = false;
+		this.comboOrderBy.enabled = false;
         this.displayStatistics(fillGlobalStatisticsPage());
     } else {
 		this.filterBox.enabled = true;
-		this.comboOrderBy.enabled	 = true;
+		this.comboOrderBy.enabled = true;
 	}
 
     if (indexGr == 1)

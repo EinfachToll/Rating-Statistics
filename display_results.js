@@ -1,6 +1,3 @@
-Importer.include("display_common.js");
-Importer.include("display_frame.js");
-
 function DisplayResults(displayCommon)
 {
     this.common = displayCommon;
@@ -71,6 +68,7 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
     {
         var frame = this.common.drawFrame(scrollArea, i / 11);
 
+		//TODO: Fix this issue with album images in Tags
         var imagePath = (query[i+1].substr(0, 3) != "ama" && query[i+1] != "") ? query[i+1] : Amarok.Info.iconPath(
                             (indexGr == 5 ) ? "filename-genre-amarok" : (indexGr == 6 ? "label-amarok" : "filename-album-amarok"), 64
                         );
@@ -86,7 +84,7 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
         this.common.addAlbumCover(frame, imagePath);
         this.common.addWeightRating(frame, weight, maxWeight);
         this.common.addSimpleText(frame, query[i+2],  0, true);
-        this.common.addSimpleText(frame, query[i+9] + (indexGr != 1 && indexGr != 4 ? " " + (parseInt(query[i+9])>1 ? qsTr("albums") : qsTr("album")) : ""), this.common.font_bold_height, false);
+        this.common.addSimpleText(frame, query[i+9] + (indexGr != 1 && indexGr != 4 ? " " + (parseInt(query[i+9])>1 ? qsTr("albums") : qsTr("album")) : (query[i+9]=="" ? qsTr("V.A.") : "")), this.common.font_bold_height, false);
         this.common.addSimpleText(frame, query[i+8] + (indexGr != 1 ? " " + (parseInt(query[i+8])>1 ? qsTr("tracks") : qsTr("track")) : ""), this.common.font_bold_height + this.common.font_height, false);
         this.addRating(frame, query[i+3]);
         this.addEmblemImage(frame, this.pixmap_score, 0);

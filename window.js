@@ -1,13 +1,10 @@
-Importer.loadQtBinding( "qt.gui" );
-Importer.loadQtBinding( "qt.uitools" );
-
 Importer.include("favourites.js");
 Importer.include("display_common.js");
 
 function StatisticsWindow()
 {
     QMainWindow.call( this, null );
-    this.windowTitle = "Rating Statistics";
+    this.windowTitle = qsTr("Rating Statistics");
 
     this.mainTabWidget       = new QTabWidget();
     this.favouritesWidget    = new QWidget();

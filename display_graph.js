@@ -1,6 +1,3 @@
-Importer.include("display_common.js");
-Importer.include("display_frame.js");
-
 function GraphPainter(displayCommon)
 {
     this.common = displayCommon;
@@ -8,22 +5,12 @@ function GraphPainter(displayCommon)
     this.frame_width                = this.common.frame_x;
     this.frame_height               = this.common.frame_y * 3;
     this.frame_thickness            = 10;
-    this.vertical_labels_width      = 0;
-    this.vertical_labels_border     = 0;
-    this.horizontal_labels_height   = 0;
-    this.horizontal_labels_border   = 0;
 
-    this.vertical_labels_x          = 0 + this.frame_thickness;
-    this.vertical_labels_y          = 0 + this.frame_thickness;
-
-    this.graph_x                    = 0 + this.frame_thickness + this.vertical_labels_width + 2 * this.vertical_labels_border;
+    this.graph_x                    = this.frame_thickness;
     this.graph_width                = this.frame_width - this.frame_thickness - this.graph_x;
 
-    this.horizontal_labels_x        = this.graph_x;
-    this.horizontal_labels_y        = this.frame_height - this.frame_thickness - this.horizontal_labels_border - this.horizontal_labels_height;
-
-    this.graph_y                    = 0 + this.frame_thickness;
-    this.graph_height               = this.frame_height - 2 * this.horizontal_labels_border - this.horizontal_labels_height - this.frame_thickness;
+    this.graph_y                    = this.frame_thickness;
+    this.graph_height               = this.frame_height - this.frame_thickness;
 
     this.gradient_up = new QLinearGradient( new QPointF(0, 3 * this.common.frame_y), new QPointF(0, 0));
     this.gradient_up.setColorAt(0, this.common.color_dark);
@@ -75,9 +62,6 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd)
     poly.setPen(this.common.pen_dark);
     poly.setBrush(this.brush_gradient_up);
 
-    var years_stride = (years_count > 15) ? 5 : (years_count > 5) ? 3 : 1;
-	years_stride = 1;
-
 	for (var i=1; i<query.length; i+=3)
 	{
         var point_x = this.graph_x + this.graph_width * (query[i] - min_year) / (years_count - 1);
@@ -90,9 +74,9 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd)
 		var toolTip = query[i+1];
 		if(indexOrd == 4)
 		{
-			var time = new Date();
+			var time = new Date(0);
 			time.setMilliseconds(parseInt(query[i+1]));
-			var hours = time.getHours();
+			var hours = time.getHours() - 1;	//don't know why there is 1 hour too much
 			var min = time.getMinutes();
 			var sec = time.getSeconds();
 			toolTip = (hours > 0 ? hours + ":" : "") + (min < 10 ? "0" : "") + min + ":" + (sec <10 ? "0" : "") + sec;

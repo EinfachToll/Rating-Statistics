@@ -1,6 +1,3 @@
-Importer.loadQtBinding( "qt.gui" );
-Importer.loadQtBinding( "qt.uitools" );
-
 Importer.include("display_frame.js");
 
 function DisplayCommon()
@@ -57,7 +54,7 @@ DisplayCommon.prototype.refreshGradients = function()
 
 DisplayCommon.prototype.changeFrameWidth = function(newWidth)
 {
-    this.frame_x            = newWidth;
+    this.frame_x = newWidth;
     this.refreshGradients();
 }
 
@@ -88,6 +85,8 @@ DisplayCommon.prototype.addAlbumCover = function(frame, image_filepath)
 
 DisplayCommon.prototype.addWeightRating = function(frame, weight, max_weight)
 {
+	if(max_weight == 0) max_weight = 1;
+
     var weight_frame = new QGraphicsRectItem(
         frame.x + this.albumCover_spacing,
         frame.y + this.albumCover_y + 2 * this.albumCover_spacing,
@@ -137,7 +136,4 @@ DisplayCommon.prototype.addSimpleText = function(frame, text, y, big_font)
         txt.setFont(this.font_bold);
     }
 }
-
-
-
 

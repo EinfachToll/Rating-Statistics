@@ -1,22 +1,17 @@
-Importer.loadQtBinding( "qt.core" );
-Importer.loadQtBinding( "qt.sql" );
 
 function Configuration(){}
 
-Configuration.prototype.settingsmodified = false;
-
-Configuration.prototype.loadSQLText = function(aname, adefault)
+Configuration.prototype.loadConfigText = function(aname, adefault)
 {
     return Amarok.Script.readConfig(aname, String(adefault));
 }
 
-
-Configuration.prototype.loadSQL = function(aname, adefault)
+Configuration.prototype.loadConfig = function(aname, adefault)
 {
     return parseInt(Amarok.Script.readConfig(aname, String(adefault)));
 }
 
-Configuration.prototype.saveSQL = function(aname, value)
+Configuration.prototype.saveConfig = function(aname, value)
 {
     Amarok.Script.writeConfig(aname, String(value));
 }
@@ -24,9 +19,9 @@ Configuration.prototype.saveSQL = function(aname, value)
 Configuration.prototype.saveCheckBox = function(aname, value)
 {
     if (value == Qt.Unchecked){
-        this.saveSQL(aname, 0);
+        this.saveConfig(aname, 0);
     } else {
-        this.saveSQL(aname, 1);
+        this.saveConfig(aname, 1);
     }
 }
 
@@ -35,7 +30,7 @@ Configuration.prototype.loadCheckBox = function(aname, adefault)
     var def = 0;
     if (adefault == Qt.Checked){def = 1;}
 
-    var val = this.loadSQL( aname, def );
+    var val = this.loadConfig( aname, def );
     if( val == 0 ){
         return Qt.Unchecked;
     } else {
@@ -47,16 +42,15 @@ Configuration.prototype.saveConfiguration = function()
 {
     msg("Saving Configuration....");
 
-    this.saveCheckBox("ignore_unrated",  this.skipUnrated);
-    this.saveSQL("min_tracks_per_album", this.minTracksPerAlbum);
-    this.saveSQL("results_limit",        this.resultsLimit);
-    this.saveCheckBox("reverse_results", this.reverseResults);
-//     this.saveCheckBox("exclude_enabled", this.excludeEnabled);
-    this.saveSQL("weight_rating",        this.weightRating);
-    this.saveSQL("weight_score",         this.weightScore);
-    this.saveSQL("weight_length",        this.weightLength);
-    this.saveSQL("weight_playcount",     this.weightPlaycount);
-    this.saveSQL("locale",               this.locale);
+    this.saveCheckBox("ignore_unrated",			this.skipUnrated);
+    this.saveConfig("min_tracks_per_album",		this.minTracksPerAlbum);
+    this.saveConfig("results_limit",			this.resultsLimit);
+    this.saveCheckBox("reverse_results",		this.reverseResults);
+    this.saveConfig("weight_rating",			this.weightRating);
+    this.saveConfig("weight_score",				this.weightScore);
+    this.saveConfig("weight_length",			this.weightLength);
+    this.saveConfig("weight_playcount",			this.weightPlaycount);
+    this.saveConfig("locale",					this.locale);
     msg("done");
 }
 
@@ -73,16 +67,15 @@ Configuration.prototype.loadConfiguration = function()
 
     msg("loadConfiguration");
 
-    this.skipUnrated       = this.loadCheckBox('ignore_unrated',       Qt.Checked);
-    this.reverseResults    = this.loadCheckBox('reverse_results',      Qt.Unchecked);
-//     this.excludeEnabled    = this.loadCheckBox('exclude_enabled',      Qt.Unchecked);
-    this.minTracksPerAlbum = this.loadSQL     ('min_tracks_per_album', 4);
-    this.resultsLimit      = this.loadSQL     ('results_limit',        15);
-    this.weightRating      = this.loadSQL     ('weight_rating',        2);
-    this.weightScore       = this.loadSQL     ('weight_score',         2);
-    this.weightLength      = this.loadSQL     ('weight_length',        1);
-    this.weightPlaycount   = this.loadSQL     ('weight_playcount',     2);
-    this.locale            = this.loadSQLText ('locale',               "amarok_rating_statistics_en.ts");
+    this.skipUnrated		= this.loadCheckBox('ignore_unrated',		Qt.Checked);
+    this.reverseResults		= this.loadCheckBox('reverse_results',		Qt.Unchecked);
+    this.minTracksPerAlbum	= this.loadConfig('min_tracks_per_album',	3);
+    this.resultsLimit		= this.loadConfig('results_limit',			15);
+    this.weightRating		= this.loadConfig('weight_rating',			2);
+    this.weightScore		= this.loadConfig('weight_score',			2);
+    this.weightLength		= this.loadConfig('weight_length',			1);
+    this.weightPlaycount	= this.loadConfig('weight_playcount',		2);
+    this.locale				= this.loadConfigText ('locale',			"amarok_rating_statistics_en.qm");
     
     msg("done");
 }
@@ -91,11 +84,9 @@ Configuration.prototype.onConfigurationApply = function()
 {
     msg("onConfigurationApply");
 
-    //this.skipUnrated       = this.checkSkipUnrated.checkState();
     this.minTracksPerAlbum = this.spinMinTracksPerAlbum.value;
     this.resultsLimit      = this.spinResultsLimit.value;
     this.reverseResults    = this.checkReverseResults.checkState();
-//     this.excludeEnabled    = this.checkExcludeEnabled.checkState();
     this.weightRating      = this.sliderWeightRating.value;
     this.weightScore       = this.sliderWeightScore.value;
     this.weightLength      = this.sliderWeightLength.value;
@@ -110,9 +101,7 @@ Configuration.prototype.showConfiguration = function()
 {
     msg("Displaying configuration...");
 
-    //this.checkSkipUnrated.setCheckState(this.skipUnrated);
     this.checkReverseResults.setCheckState(this.reverseResults);
-//     this.checkExcludeEnabled.setCheckState(this.excludeEnabled);
     this.spinMinTracksPerAlbum.setValue(this.minTracksPerAlbum);
     this.spinResultsLimit.setValue(this.resultsLimit);
     this.sliderWeightRating.setValue(this.weightRating);
@@ -129,27 +118,23 @@ Configuration.prototype.draw = function(parentWidget)
     msg("Drawing configuration tab...");
     this.mainLayout                   = new QGridLayout(parentWidget);
 
-    //this.groupBoxTracks              = new QGroupBox(qsTr("Tracks"));
     this.groupBoxResults             = new QGroupBox(qsTr("Results"));
     this.groupBoxOrdering            = new QGroupBox(qsTr("User-specific weight"));
     this.groupBoxLocale              = new QGroupBox(qsTr("Locale"));
     this.groupBoxButtons             = new QWidget(parentWidget);
 
-    //this.groupLayoutTracks           = new QGridLayout();
     this.groupLayoutResults          = new QGridLayout();
     this.groupLayoutOrdering         = new QGridLayout();
     this.groupLayoutButtons          = new QGridLayout();
     this.groupLayoutLocale           = new QVBoxLayout();
 
-    //this.labelSkipUnrated            = new QLabel(qsTr("Skip Unrated Tracks: "),    parentWidget, 0);
     this.labelReverseResults         = new QLabel(qsTr("Reverse Results: "),        parentWidget, 0);
-    this.labelMinTracksPerAlbum      = new QLabel(qsTr("Min Number of Rated Tracks per Album: "),   parentWidget, 0);
+    this.labelMinTracksPerAlbum      = new QLabel(qsTr("Min Number of (Rated) Tracks: "),   parentWidget, 0);
     this.labelResultsLimit           = new QLabel(qsTr("Results Limit: "),          parentWidget, 0);
     this.labelWeightRating           = new QLabel(qsTr("Rating Weight: "),          parentWidget, 0);
     this.labelWeightScore            = new QLabel(qsTr("Score Weight: "),           parentWidget, 0);
     this.labelWeightLength           = new QLabel(qsTr("Length Weight: "),          parentWidget, 0);
     this.labelWeightPlaycount        = new QLabel(qsTr("Playcount Weight: "),       parentWidget, 0);
-    //this.checkSkipUnrated            = new QCheckBox(parentWidget);
     this.checkReverseResults         = new QCheckBox(parentWidget);
     this.spinMinTracksPerAlbum       = new QSpinBox(parentWidget);
     this.spinResultsLimit            = new QSpinBox(parentWidget);
@@ -178,8 +163,6 @@ Configuration.prototype.draw = function(parentWidget)
         this.comboLocale.addItem(localeList[i])
     }
 
-    //this.groupLayoutTracks.addWidget(this.labelSkipUnrated,            0, 0);
-    //this.groupLayoutTracks.addWidget(this.checkSkipUnrated,            0, 1);
     this.groupLayoutResults.addWidget(this.labelReverseResults,        0, 0);
     this.groupLayoutResults.addWidget(this.checkReverseResults,        0, 1);
     this.groupLayoutResults.addWidget(this.labelResultsLimit,          1, 0);
@@ -195,12 +178,10 @@ Configuration.prototype.draw = function(parentWidget)
     this.groupLayoutOrdering.addWidget(this.labelWeightLength,         3, 0);
     this.groupLayoutOrdering.addWidget(this.sliderWeightLength,        3, 1);
     this.groupLayoutButtons.addWidget(this.buttonFrame,                0, 0, 1, 4);
-    //this.groupLayoutButtons.addWidget(this.buttonReload,               1, 2, 1, 1);
     this.groupLayoutButtons.addWidget(this.buttonApply,                1, 3, 1, 1);
     this.groupLayoutLocale.addWidget(this.labelLocale,                 0, 0);
     this.groupLayoutLocale.addWidget(this.comboLocale,                 1, 0);
 
-    //this.groupBoxTracks.setLayout(this.groupLayoutTracks);
     this.groupBoxResults.setLayout(this.groupLayoutResults);
     this.groupBoxOrdering.setLayout(this.groupLayoutOrdering);
     this.groupBoxButtons.setLayout(this.groupLayoutButtons);
@@ -213,16 +194,8 @@ Configuration.prototype.draw = function(parentWidget)
     this.mainLayout.addWidget(this.groupBoxButtons,        4, 0);
 
     this.buttonApply.clicked.connect( this, this.onConfigurationApply);
-    //this.buttonReload.clicked.connect(this, this.showConfiguration);
 
-
-    //this.checkSkipUnrated.toolTip      = qsTr("If set, any tracks that do not have a rating set are not displayed.\n"
-     //                                  + "Otherwise, such tracks are assumed to have a rating and a score of 50% for ranking purposes.");
-
-    this.spinMinTracksPerAlbum.toolTip = qsTr("Any albums that do not have at least that many tracks are not displayed.\n"
-                                       + "This works in conjuction with the 'Skip Unrated Tracks' option;\n"
-                                       + "in this case an album is required to have at least that many _rated_ tracks.\n"
-                                       + "A value of 1 is equivalent to disabling this feature.");
+    this.spinMinTracksPerAlbum.toolTip = qsTr("Where this setting makes sense, just albums/genres/etc. with that many tracks are shown, and with that many rated tracks, respectively.\nA value of 1 is equivalent to disabling this feature.");
 
     this.spinResultsLimit.toolTip      = qsTr("Sets an upper limit on the number of results displayed. A lot of results might take a while to render.");
 
@@ -239,10 +212,6 @@ Configuration.prototype.draw = function(parentWidget)
 
     this.sliderWeightScore.toolTip     = qsTr("Sets the importance of an entry's score for ranking purposes.\n"
                                        + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
-
-
-//     this.checkExcludeEnabled.setCheckState(Qt.Unchecked);
-//     this.checkExcludeEnabled.enabled = false;
 
     msg("Finished drawing configuration tab...");
 }
