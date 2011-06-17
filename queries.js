@@ -86,7 +86,7 @@ function fillArtistsPage(filterText, orderby)
 {
 var sql_query = "SELECT \
 		c.artist, \
-		(SELECT path FROM images i LEFT JOIN albums a ON (i.id = a.image) WHERE a.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1) AS bild, \
+		(SELECT path FROM images i LEFT JOIN albums a ON (i.id = a.image) LEFT JOIN tracks t ON (t.album=a.id) WHERE t.artist = c.artist ORDER BY RAND() LIMIT 1) AS bild, \
 		c.name, \
 		ROUND(c.rat,1), \
 		plcount, \
@@ -125,7 +125,7 @@ var sql_query = "SELECT \
 function fillAlbumArtistsPage(filterText, orderby)
 {
 	var sql_query = "SELECT \
-		c.artist, (SELECT path FROM images i LEFT JOIN albums a ON (i.id = a.image) WHERE a.artist = c.artist AND path NOT LIKE 'amarok-sqltrackuid://%' ORDER BY RAND() LIMIT 1)  AS bild, c.name, ROUND(c.rat, 1), plcount, ROUND(c.sco, 0), wei, leng, numTr, numAl, ROUND(yea, 0) \
+		c.artist, (SELECT path FROM images i LEFT JOIN albums a ON (i.id = a.image) WHERE a.artist = c.artist ORDER BY RAND() LIMIT 1)  AS bild, c.name, ROUND(c.rat, 1), plcount, ROUND(c.sco, 0), wei, leng, numTr, numAl, ROUND(yea, 0) \
   FROM ( \
 		SELECT a.artist, AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
 		       COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, COUNT(DISTINCT t.album) AS numAl, \

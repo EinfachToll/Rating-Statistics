@@ -1,5 +1,6 @@
 Importer.loadQtBinding( "qt.core" );
 Importer.loadQtBinding( "qt.sql" );
+Importer.loadQtBinding( "qt.gui");
 
 Importer.include("configuration.js");
 Importer.include("window.js");
@@ -12,7 +13,7 @@ function msg( str ){
 function sql_exec(query){
 	msg("[SQL] " + query);
 	var res = Amarok.Collection.query(query);
-	msg(res);
+	//msg(res);
 	return res;
 }
 
@@ -67,6 +68,6 @@ var config = new Configuration;
 var playlistImporter = new PlaylistImporter;
 config.loadConfiguration();
 
-//showWindowCallback();
+showWindowCallback();
 
 msg('========== Finished ==========');

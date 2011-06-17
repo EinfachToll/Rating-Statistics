@@ -1,3 +1,5 @@
+Importer.include("md5.js");
+
 function DisplayResults(displayCommon)
 {
     this.common = displayCommon;
@@ -68,10 +70,16 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
     {
         var frame = this.common.drawFrame(scrollArea, i / 11);
 
-		//TODO: Fix this issue with album images in Tags
-        var imagePath = (query[i+1].substr(0, 3) != "ama" && query[i+1] != "") ? query[i+1] : Amarok.Info.iconPath(
-                            (indexGr == 5 ) ? "filename-genre-amarok" : (indexGr == 6 ? "label-amarok" : "filename-album-amarok"), 64
-                        );
+		var imagePath = "";
+		if(query[i+1].substr(0, 3) == "ama")
+		{
+			imagePath = QDir.homePath() + "/.kde/share/apps/amarok/albumcovers/cache/90@" + MD5(query[i+1]);
+		} else
+		if(query[i+1] == "")
+			imagePath = Amarok.Info.iconPath((indexGr == 5 ) ? "filename-genre-amarok" : (indexGr == 6 ? "label-amarok" : "filename-album-amarok"), 64);
+		else
+			imagePath = query[i+1];
+
         var weight = query[i+indexOrd+3];
 
         var len_hour = Math.floor(query[i+7]/3600000);
