@@ -66,7 +66,7 @@ function fillTracksPage(filterText, orderby)
 	var sql_query = "\
 	SELECT \
 	t.id, \
-	i.path AS bild, \
+	IF(i.path IS NOT NULL, i.path, CONCAT(LOWER(b1.name), LOWER(a.name))), \
 	t.title  AS liedname, \
 	s.rating AS rat, \
 	s.playcount AS plcount, \
@@ -86,7 +86,9 @@ function fillArtistsPage(filterText, orderby)
 {
 var sql_query = "SELECT \
 		c.artist, \
-		(SELECT path FROM images i LEFT JOIN albums a ON (i.id = a.image) LEFT JOIN tracks t ON (t.album=a.id) WHERE t.artist = c.artist ORDER BY RAND() LIMIT 1) AS bild, \
+		IF((select auu.image from albums auu where auu.id = c.anyalb) IS NOT NULL, (select iuu.path from albums auu JOIN images iuu ON auu.image=iuu.id where auu.id = c.anyalb), \
+			CONCAT(LOWER((select buu.name from albums auu JOIN artists buu ON auu.artist=buu.id where auu.id=c.anyalb)), LOWER((select auu.name from albums auu where auu.id=c.anyalb))) \
+			) , \
 		c.name, \
 		ROUND(c.rat,1), \
 		plcount, \
@@ -99,6 +101,7 @@ var sql_query = "SELECT \
 	FROM ( \
 	SELECT \
 		t.artist, \
+		(SELECT au.id FROM albums au LEFT JOIN tracks tu ON (tu.album = au.id) where tu.artist = t.artist ORDER BY RAND() LIMIT 1) AS anyalb, \
 		b.name, \
 		COUNT(DISTINCT t.album) AS numAl, \
 		AVG(IF(s.rating < 1,  NULL, s.rating)) AS rat, \
@@ -125,9 +128,15 @@ var sql_query = "SELECT \
 function fillAlbumArtistsPage(filterText, orderby)
 {
 	var sql_query = "SELECT \
-		c.artist, (SELECT path FROM images i LEFT JOIN albums a ON (i.id = a.image) WHERE a.artist = c.artist ORDER BY RAND() LIMIT 1)  AS bild, c.name, ROUND(c.rat, 1), plcount, ROUND(c.sco, 0), wei, leng, numTr, numAl, ROUND(yea, 0) \
+		c.artist, \
+		IF((select auu.image from albums auu where auu.id = c.anyalb) IS NOT NULL, (select iuu.path from albums auu JOIN images iuu ON auu.image=iuu.id where auu.id = c.anyalb), \
+			CONCAT(LOWER((select buu.name from albums auu JOIN artists buu ON auu.artist=buu.id where auu.id=c.anyalb)), LOWER((select auu.name from albums auu where auu.id=c.anyalb))) \
+			) , \
+		c.name, ROUND(c.rat, 1), plcount, ROUND(c.sco, 0), wei, leng, numTr, numAl, ROUND(yea, 0) \
   FROM ( \
-		SELECT a.artist, AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
+		SELECT a.artist, \
+		(SELECT au.id FROM albums au where au.artist = t.artist ORDER BY RAND() LIMIT 1) AS anyalb, \
+		AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
 		       COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, COUNT(DISTINCT t.album) AS numAl, \
 			   count(*) AS numTr, "
 				+ createWeightString(3) +
@@ -148,7 +157,7 @@ function fillAlbumsPage(filterText, orderby)
 {
 	var sql_query = "SELECT \
 				 c.album, \
-				 c.bild, \
+				 c.img, \
 				 c.albumname, \
 				 ROUND(c.rat, 1), \
 				 plcount, \
@@ -161,7 +170,7 @@ function fillAlbumsPage(filterText, orderby)
   FROM ( \
 		SELECT t.album, \
 		a.name AS albumname, \
-		i.path AS bild, \
+		IF(i.path IS NOT NULL, i.path, CONCAT(LOWER(b1.name), LOWER(a.name))) AS img, \
 		AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, \
 		AVG(s.score) AS sco, \
 		SUM(s.playcount) AS plcount, \
@@ -186,7 +195,7 @@ function fillGenresPage(filterText, orderby)
 {
 	var sql_query = "SELECT \
 		c.genre, \
-		NULL AS bild, \
+		'genre' AS img, \
 		c.name,  \
 		ROUND(c.rat, 1), \
 		plcount, \
@@ -216,7 +225,7 @@ function fillLabelsPage(filterText, orderby)
 {
 	var sql_query = "SELECT \
 		c.id, \
-		NULL AS bild, \
+		'label' AS img, \
 		c.label,  \
 		ROUND(c.rat, 1), \
 		plcount, \

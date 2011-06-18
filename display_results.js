@@ -71,14 +71,22 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
         var frame = this.common.drawFrame(scrollArea, i / 11);
 
 		var imagePath = "";
-		if(query[i+1].substr(0, 3) == "ama")
-		{
+		if(query[i+1].substr(0, 18) == "amarok-sqltrackuid")
 			imagePath = QDir.homePath() + "/.kde/share/apps/amarok/albumcovers/cache/90@" + MD5(query[i+1]);
-		} else
-		if(query[i+1] == "")
-			imagePath = Amarok.Info.iconPath((indexGr == 5 ) ? "filename-genre-amarok" : (indexGr == 6 ? "label-amarok" : "filename-album-amarok"), 64);
 		else
+		if(query[i+1].substr(0, 1) == "/")
 			imagePath = query[i+1];
+		else
+		if(query[i+1] == "label")
+			imagePath = Amarok.Info.iconPath("label-amarok", 64);
+		else
+		if(query[i+1] == "genre")
+			imagePath = Amarok.Info.iconPath("filename-genre-amarok", 64);
+		else
+		if(query[i+1] == "")
+			imagePath = Amarok.Info.iconPath("filename-album-amarok", 64);
+		else
+			imagePath = QDir.homePath() + "/.kde/share/apps/amarok/albumcovers/large/" + MD5(query[i+1]);
 
         var weight = query[i+indexOrd+3];
 

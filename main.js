@@ -13,7 +13,7 @@ function msg( str ){
 function sql_exec(query){
 	msg("[SQL] " + query);
 	var res = Amarok.Collection.query(query);
-	//msg(res);
+	msg(res);
 	return res;
 }
 
