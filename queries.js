@@ -6,31 +6,31 @@ function createOrderString(groupby, orderby)
 	l = "";
 	switch(orderby) {
 		case 0:
-			l = (groupby == 1 ? " AND s.rating > 0 " : (groupby != 7 ? " HAVING numRatTr >= " + config.minTracksPerAlbum : "" )) + (groupby != 7 ? " ORDER BY " : "") + "rat ";
+			l = (groupby == 1 ? " AND s.rating > 0 " : (groupby < 7 ? " HAVING numRatTr >= " + config.minTracksPerAlbum : "" )) + (groupby < 7 ? " ORDER BY " : "") + "rat ";
 			break;
 		case 1:
-			l = (groupby != 7 ? " ORDER BY " : "") + "plcount ";
+			l = (groupby < 7 ? " ORDER BY " : "") + "plcount ";
 			break;
 		case 2:
-			l = (groupby != 1 && groupby != 7 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby != 7 ? " ORDER BY " : "") + "sco ";
+			l = (groupby != 1 && groupby < 7 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby < 7 ? " ORDER BY " : "") + "sco ";
 			break;
 		case 3:
-			l = (config.weightRating > 0 && groupby != 1 && groupby != 7 ? " HAVING numRatTr >= 1 " : "" ) + (groupby != 7 ? " ORDER BY " : "") + "wei ";
+			l = (config.weightRating > 0 && groupby != 1 && groupby < 7 ? " HAVING numRatTr >= 1 " : "" ) + (groupby < 7 ? " ORDER BY " : "") + "wei ";
 			break;
 		case 4:
-			l = (groupby != 7 ? " ORDER BY " : "") + "leng ";
+			l = (groupby < 7 ? " ORDER BY " : "") + "leng ";
 			break;
 		case 5:
-			l = (groupby != 7 ? " ORDER BY " : "") + "numTr ";
+			l = (groupby < 7 ? " ORDER BY " : "") + "numTr ";
 			break;
 		case 6:
-			l = (groupby != 7 ? " ORDER BY " : "") + "numAl ";
+			l = (groupby < 7 ? " ORDER BY " : "") + "numAl ";
 			break;
 		default:
-			l = (groupby != 1 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby != 7 ? " ORDER BY " : "") + "yea ";
+			l = (groupby != 1 && groupby < 7 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby < 7 ? " ORDER BY " : "") + "yea ";
 			break;
 	}
-	if (config.reverseResults==Qt.Unchecked && groupby != 7) l += "DESC ";
+	if (config.reverseResults==Qt.Unchecked && groupby < 7) l += "DESC ";
 
     return l;
 }
@@ -39,24 +39,16 @@ function createWeightString(groupby)
 {
 	if(groupby!=1)
 	{
-		l = "   (5.0 * " + config.weightRating    + " * AVG(if(s.rating < 1,  null, s.rating)))"
+		l = "   (5.0 * " + config.weightRating    + (groupby==8 ? " * s.rating)" : " * AVG(if(s.rating < 1,  null, s.rating)))")
 		  + " + (0.6 * " + config.weightScore     + " * AVG(s.score))"
-		  + " + (0.5 * " + config.weightLength    + " * SQRT(SUM(t.length)/1000))";
-		if (groupby == 2 || groupby == 3) {
-			l += " + (2.5 * " + config.weightPlaycount + " * SUM(s.playcount))";
-		} else {
-			l += " + (2.5 * " + config.weightPlaycount + " * SQRT(SUM(s.playcount)))";
-		}
+		  + " + (0.5 * " + config.weightLength    + " * SQRT(SUM(t.length)/1000))"
+		  + " + (2.5 * " + config.weightPlaycount + (groupby==2 || groupby==3 ? " * SUM(s.playcount))" : " * SQRT(SUM(s.playcount)))");
 	} else
 	{
 		l = "   (5.0 * " + config.weightRating    + " * IF(s.rating < 1,  null, s.rating))"
 		  + " + (0.6 * " + config.weightScore     + " * s.score)"
-		  + " + (0.5 * " + config.weightLength    + " * SQRT(t.length)/1000)";
-		if (groupby == 2 || groupby == 3) {
-			l += " + (2.5 * " + config.weightPlaycount + " * s.playcount)";
-		} else {
-			l += " + (2.5 * " + config.weightPlaycount + " * SQRT(s.playcount))";
-		}
+		  + " + (0.5 * " + config.weightLength    + " * SQRT(t.length)/1000)"
+		  + " + (2.5 * " + config.weightPlaycount + " * SQRT(s.playcount))";
 	}
     return l;
 }
@@ -66,7 +58,7 @@ function fillTracksPage(filterText, orderby)
 	var sql_query = "\
 	SELECT \
 	t.id, \
-	IF(i.path IS NOT NULL, i.path, CONCAT(LOWER(b1.name), LOWER(a.name))), \
+	IF(i.path IS NOT NULL, i.path, CONCAT(IF(b1.name IS NOT NULL, LOWER(b1.name), ''), LOWER(a.name))), \
 	t.title  AS liedname, \
 	s.rating AS rat, \
 	s.playcount AS plcount, \
@@ -135,7 +127,7 @@ function fillAlbumArtistsPage(filterText, orderby)
 		c.name, ROUND(c.rat, 1), plcount, ROUND(c.sco, 0), wei, leng, numTr, numAl, ROUND(yea, 0) \
   FROM ( \
 		SELECT a.artist, \
-		(SELECT au.id FROM albums au where au.artist = t.artist ORDER BY RAND() LIMIT 1) AS anyalb, \
+		(SELECT au.id FROM albums au where au.artist = a.artist ORDER BY RAND() LIMIT 1) AS anyalb, \
 		AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
 		       COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, COUNT(DISTINCT t.album) AS numAl, \
 			   count(*) AS numTr, "
@@ -170,7 +162,7 @@ function fillAlbumsPage(filterText, orderby)
   FROM ( \
 		SELECT t.album, \
 		a.name AS albumname, \
-		IF(i.path IS NOT NULL, i.path, CONCAT(LOWER(b1.name), LOWER(a.name))) AS img, \
+		IF(i.path IS NOT NULL, i.path, CONCAT(IF(b1.name IS NOT NULL, LOWER(b1.name), ''), LOWER(a.name))) AS img, \
 		AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, \
 		AVG(s.score) AS sco, \
 		SUM(s.playcount) AS plcount, \
@@ -251,7 +243,7 @@ function fillLabelsPage(filterText, orderby)
     return sql_query;
 }
 
-function fillRatingOverTimePage(filterText, indexOrd)
+function fillYearGraph(filterText, indexOrd)
 {
 	var sql_query = "SELECT c.yid, c.name, c." + createOrderString(7, indexOrd) +
 		  "FROM ( \
@@ -265,6 +257,22 @@ function fillRatingOverTimePage(filterText, indexOrd)
 		 + " ORDER BY 2 \
        ) c";
     return sql_query;
+}
+
+function fillRatingGraph(filterText, indexOrd)
+{
+    var sql_query = "SELECT c.rating, c.rating, c." + createOrderString(8, indexOrd) + 
+      "FROM (\
+			SELECT s.rating, AVG(IF(y.name < 1, NULL, y.name)) AS yea, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
+				   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, " + createWeightString(8) + " AS wei \
+			  FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y ON (t.year = y.id) LEFT JOIN genres g ON (t.genre = g.id) \
+			  LEFT JOIN artists b ON (t.artist = b.id) LEFT JOIN albums a ON (t.album  = a.id) LEFT JOIN artists b1 ON (a.artist = b1.id) \
+			 WHERE true"
+			 + playlistImporter.createFilterString(filterText) +
+			 " GROUP BY s.rating \
+			 ORDER BY 1 \
+           ) c";
+	return sql_query;
 }
 
 function fillGlobalStatisticsPage()

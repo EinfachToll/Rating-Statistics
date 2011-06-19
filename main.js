@@ -68,6 +68,6 @@ var config = new Configuration;
 var playlistImporter = new PlaylistImporter;
 config.loadConfiguration();
 
-showWindowCallback();
+//showWindowCallback();
 
 msg('========== Finished ==========');

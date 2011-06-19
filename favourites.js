@@ -57,16 +57,17 @@ CustomQGraphicsScene.prototype.mouseDoubleClickEvent = function(event)
 		if (indexGr == 6) playlistImporter.addLabel(id);
 	} else
 	{
-		var ymax = parseInt(currentQuery[currentQuery.length - 2]);
-		var ymin = parseInt(currentQuery[1]);
-		var cliY = Math.floor((event.scenePos().x() - 10) * (ymax-ymin) / (this.width()-20)) + ymin;
-		var selY = ymin;
+		var imax = parseInt(currentQuery[currentQuery.length - 2]);
+		var imin = parseInt(currentQuery[1]);
+		var cliI = Math.floor((event.scenePos().x() - 10) * (imax-imin) / (this.width()-20)) + imin;
+		var selI = imin;
 		for(var i=0; i<currentQuery.length; i+=3)
 		{
-			if(parseInt(currentQuery[i+1]) <= cliY) selY = currentQuery[i];
+			if(parseInt(currentQuery[i+1]) <= cliI) selI = currentQuery[i];
 			else break;
 		}
-		playlistImporter.addYear(selY);
+		if (indexGr == 7) playlistImporter.addYear(selI);
+		if (indexGr == 8) playlistImporter.addRating(selI);
 	}
 }
 
@@ -111,6 +112,7 @@ FavouritesTab.prototype.draw = function(parentWidget)
 	this.comboGroupBy.addItem(icon_genre,		qsTr("Genres"));
 	this.comboGroupBy.addItem(icon_label,		qsTr("Labels"));
 	this.comboGroupBy.addItem(icon_year,		qsTr("Years"));
+	this.comboGroupBy.addItem(icon_rating,		qsTr("Rating"));
 
 	this.comboOrderBy.addItem(icon_rating,		qsTr("Rating"));
 	this.comboOrderBy.addItem(icon_playcount,	qsTr("Play count"));
@@ -137,8 +139,8 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.mainLayout.addWidget(this.groupBoxSearch,  0, 0);
     this.mainLayout.addWidget(this.groupBoxResults, 0, 0);
 
-    this.comboGroupBy['currentIndexChanged(int)'].connect(this, this.onQueryTypeChanged);
-    this.comboOrderBy['currentIndexChanged(int)'].connect(this, this.onQueryTypeChanged);
+    this.comboGroupBy['currentIndexChanged(int)'].connect(this, this.onGroupChanged);
+    this.comboOrderBy['currentIndexChanged(int)'].connect(this, this.onOrderChanged);
     this.filterBox.returnPressed.connect( this, this.onQuerySubmitted);
 
     this.filterBox.toolTip    = qsTr("Filter by artist, album, album artist, genre, label or year. Year ranges work, too.");
@@ -146,7 +148,7 @@ FavouritesTab.prototype.draw = function(parentWidget)
 
     msg("Finished drawing favourites tab...");
 
-    this.onQueryTypeChanged();
+    this.onGroupChanged();
 }
 
 FavouritesTab.prototype.closeEvent = function(CloseEvent)
@@ -169,10 +171,35 @@ FavouritesTab.prototype.resultsShowWorking = function()
 FavouritesTab.prototype.onQuerySubmitted = function(index)
 {
     msg("Query Submitted");
-    this.onQueryTypeChanged();
+    this.onTypeChanged();
 }
 
-FavouritesTab.prototype.onQueryTypeChanged = function()
+FavouritesTab.prototype.onGroupChanged = function(index)
+{
+	//if(index==7 && indexOrd==7)
+		//this.comboOrderBy.setCurrentIndex(0);
+	if(index==8 && indexOrd==0)
+		this.comboOrderBy.setCurrentIndex(5);
+	//if(index==1 && (indexOrd==5 || indexOrd==6))
+		//this.comboOrderBy.setCurrentIndex(0);
+		
+	this.onTypeChanged();
+}
+
+FavouritesTab.prototype.onOrderChanged = function(index)
+{
+	/*
+	if(index==7 && indexGr==7)
+		this.comboGroupBy.setCurrentIndex(1);
+	if(index==0 && indexGr==8)
+		this.comboGroupBy.setCurrentIndex(1);
+	if((index==5 || index==6) && indexGr==1)
+		this.comboGroupBy.setCurrentIndex(2);
+		*/
+	this.onTypeChanged();
+}
+
+FavouritesTab.prototype.onTypeChanged = function()
 {
 	playlistImporter.filterText = this.filterBox.text;
 	indexGr  = this.comboGroupBy.currentIndex;
@@ -210,7 +237,10 @@ FavouritesTab.prototype.onQueryTypeChanged = function()
 		this.displayResults(fillLabelsPage(this.filterBox.text, indexOrd), indexOrd);
 
     if (indexGr == 7)
-        this.displayGraph(fillRatingOverTimePage(this.filterBox.text, indexOrd), indexOrd);
+        this.displayGraph(fillYearGraph(this.filterBox.text, indexOrd), indexOrd, 7);
+
+    if (indexGr == 8)
+        this.displayGraph(fillRatingGraph(this.filterBox.text, indexOrd), indexOrd, 8);
 
     this.mutex.unlock();
 }
@@ -247,7 +277,7 @@ FavouritesTab.prototype.displayResults = function(query_string, indexOrd)
     this.Results_Painter.drawResults(this.scrollAreaData, currentQuery, indexGr, indexOrd);
 }
 
-FavouritesTab.prototype.displayGraph = function(query_string, maxValue)
+FavouritesTab.prototype.displayGraph = function(query_string, orderby, groupby)
 {
     msg("Painting graph...");
 
@@ -259,5 +289,5 @@ FavouritesTab.prototype.displayGraph = function(query_string, maxValue)
         return;
     }
 
-    this.graphPainter.drawGraph(this.scrollAreaData, currentQuery, maxValue);
+    this.graphPainter.drawGraph(this.scrollAreaData, currentQuery, orderby, groupby);
 }

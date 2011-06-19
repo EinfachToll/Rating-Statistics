@@ -24,6 +24,7 @@ function DisplayCommon()
     this.weightIndicator_thickness  = 1;
     this.weightIndicator_y          = this.frame_y - this.albumCover_y - (3 * this.albumCover_spacing);
     // Colors
+	this.color_light                = QApplication.palette().color(QPalette.Light);
     this.color_mid                  = QApplication.palette().color(QPalette.Mid);
     this.color_button               = QApplication.palette().color(QPalette.Button);
     this.color_dark                 = QApplication.palette().color(QPalette.Dark);
