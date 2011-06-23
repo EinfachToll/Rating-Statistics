@@ -144,7 +144,7 @@ Configuration.prototype.draw = function(parentWidget)
     this.sliderWeightLength          = new QSlider(Qt.Horizontal, parentWidget);
     this.sliderWeightPlaycount       = new QSlider(Qt.Horizontal, parentWidget);
     this.buttonApply                 = new QPushButton(qsTr("Apply"),   parentWidget);
-    this.labelLocale                 = new QLabel("Sorry, you will need to re-open this window and/or disable/enable\nthis script for locale changes to take effect, for now.", parentWidget, 0);
+    this.labelLocale                 = new QLabel(qsTr("You will need to re-open this window for locale changes\nto take effect."), parentWidget, 0);
     this.comboLocale                 = new QComboBox(parentWidget);
 
     this.buttonFrame.frameShape = QFrame.HLine;
@@ -195,11 +195,17 @@ Configuration.prototype.draw = function(parentWidget)
 
     this.buttonApply.clicked.connect( this, this.onConfigurationApply);
 
-    this.spinMinTracksPerAlbum.toolTip = qsTr("Where this setting makes sense, just albums/genres/etc. with that many tracks are shown, and with that many rated tracks, respectively.\nA value of 1 is equivalent to disabling this feature.");
+	var minTracksTooltip = qsTr("Where this setting makes sense, just albums/genres/etc. with that many tracks are shown, and with that many rated tracks, respectively.\nA value of 1 is equivalent to disabling this feature.");
+    this.spinMinTracksPerAlbum.toolTip  = minTracksTooltip;
+	this.labelMinTracksPerAlbum.toolTip = minTracksTooltip;
 
-    this.spinResultsLimit.toolTip      = qsTr("Sets an upper limit on the number of results displayed. A lot of results might take a while to render.");
+	var resultsLimitTooltip = qsTr("Sets an upper limit on the number of results displayed. A lot of results might take a while to render.");
+    this.spinResultsLimit.toolTip      = resultsLimitTooltip;
+	this.labelResultsLimit.toolTip     = resultsLimitTooltip;
 
-    this.checkReverseResults.toolTip   = qsTr("If set, the results are ranked from worst to best.");
+	var reverseResultsTooltip = qsTr("If set, the results are ranked from worst to best.");
+    this.checkReverseResults.toolTip   = reverseResultsTooltip;
+	this.labelReverseResults.toolTip   = reverseResultsTooltip;
 
     this.sliderWeightLength.toolTip    = qsTr("Sets the importance of an entry's length for ranking purposes.\n"
                                        + "The settings are from left to right: Disabled, 50%, 100%, 150%.");

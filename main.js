@@ -57,7 +57,7 @@ function showWindowCallback() {
 
 msg('========== Starting ==========');
 
-if (Amarok.Window.addToolsMenu("rating_statistics", qsTr("Rating Statistics"), "emblem-favorite-amarok")){
+if (Amarok.Window.addToolsMenu("rating_statistics", "Rating Statistics", "emblem-favorite-amarok")){
     var rating_statistics_button = Amarok.Window.ToolsMenu.rating_statistics;
     rating_statistics_button['triggered()'].connect(showWindowCallback);
 } else {

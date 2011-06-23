@@ -23,6 +23,7 @@ function StatisticsWindow()
     config.showConfiguration();
     this.favouritesTab.draw(this.favouritesWidget);
 
+	this.mainTabWidget.documentMode = true;
     this.mainTabWidget.addTab(this.favouritesWidget, qsTr("Favourites"));
     this.mainTabWidget.addTab(this.configurationWidget, qsTr("Configuration"));
 
