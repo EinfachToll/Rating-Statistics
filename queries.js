@@ -27,7 +27,7 @@ function createOrderString(groupby, orderby)
 			l = (groupby < 7 ? " ORDER BY " : "") + "numAl ";
 			break;
 		default:
-			l = (groupby != 1 && groupby < 7 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby < 7 ? " ORDER BY " : "") + "yea ";
+			l = (groupby != 1 && groupby < 7 ? " HAVING numTr >= " + config.minTracksPerAlbum : "") + (groupby<7 && config.reverseResults==Qt.Checked ? " AND yea > 1" : "") + (groupby < 7 ? " ORDER BY " : "") + "yea ";
 			break;
 	}
 	if (config.reverseResults==Qt.Unchecked && groupby < 7) l += "DESC ";
@@ -39,13 +39,13 @@ function createWeightString(groupby)
 {
 	if(groupby!=1)
 	{
-		l = "   (5.0 * " + config.weightRating    + (groupby==8 ? " * s.rating)" : " * AVG(if(s.rating < 1,  null, s.rating)))")
-		  + " + (0.6 * " + config.weightScore     + " * AVG(s.score))"
+		l = "   (5.0 * " + config.weightRating    + (groupby==9 ? " * s.rating)" : " * AVG(IF(s.rating < 1,  NULL, s.rating)))")
+		  + " + (0.6 * " + config.weightScore     + " * AVG(IF(s.score IS NULL, 0, s.score)))"
 		  + " + (0.5 * " + config.weightLength    + " * SQRT(SUM(t.length)/1000))"
 		  + " + (2.5 * " + config.weightPlaycount + (groupby==2 || groupby==3 ? " * SUM(s.playcount))" : " * SQRT(SUM(s.playcount)))");
 	} else
 	{
-		l = "   (5.0 * " + config.weightRating    + " * IF(s.rating < 1,  null, s.rating))"
+		l = "   (5.0 * " + config.weightRating    + " * IF(s.rating < 1,  NULL, s.rating))"
 		  + " + (0.6 * " + config.weightScore     + " * s.score)"
 		  + " + (0.5 * " + config.weightLength    + " * SQRT(t.length)/1000)"
 		  + " + (2.5 * " + config.weightPlaycount + " * SQRT(s.playcount))";
@@ -97,7 +97,7 @@ var sql_query = "SELECT \
 		b.name, \
 		COUNT(DISTINCT t.album) AS numAl, \
 		AVG(IF(s.rating < 1,  NULL, s.rating)) AS rat, \
-		AVG(s.score) AS sco, \
+		AVG(IF(s.score IS NULL, 0, s.score)) AS sco, \
 		SUM(s.playcount) AS plcount, \
 		SUM(t.length)    AS leng, \
 		COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, \
@@ -128,7 +128,7 @@ function fillAlbumArtistsPage(filterText, orderby)
   FROM ( \
 		SELECT a.artist, \
 		(SELECT au.id FROM albums au where au.artist = a.artist ORDER BY RAND() LIMIT 1) AS anyalb, \
-		AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
+		AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(IF(s.score IS NULL, 0, s.score)) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
 		       COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, COUNT(DISTINCT t.album) AS numAl, \
 			   count(*) AS numTr, "
 				+ createWeightString(3) +
@@ -164,7 +164,7 @@ function fillAlbumsPage(filterText, orderby)
 		a.name AS albumname, \
 		IF(i.path IS NOT NULL, i.path, CONCAT(IF(b1.name IS NOT NULL, LOWER(b1.name), ''), LOWER(a.name))) AS img, \
 		AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, \
-		AVG(s.score) AS sco, \
+		AVG(IF(s.score IS NULL, 0, s.score)) AS sco, \
 		SUM(s.playcount) AS plcount, \
 		SUM(t.length) AS leng, \
 	   COUNT(IF(s.rating <  1, NULL, s.rating)) AS numRatTr, \
@@ -198,7 +198,7 @@ function fillGenresPage(filterText, orderby)
 		numAl, \
 		ROUND(yea, 0) \
   FROM ( \
-		SELECT t.genre, g.name, AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
+		SELECT t.genre, g.name, AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(IF(s.score IS NULL, 0, s.score)) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
 		       COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, \
 			   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, "
 			   + createWeightString(5)
@@ -228,7 +228,7 @@ function fillLabelsPage(filterText, orderby)
 		numAl, \
 		ROUND(yea, 0) \
   FROM ( \
-		SELECT ul.label AS id, l.label, AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
+		SELECT ul.label AS id, l.label, AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(IF(s.score IS NULL, 0, s.score)) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
 		       COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, \
 			   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, "
 			   + createWeightString(6)
@@ -247,7 +247,7 @@ function fillYearGraph(filterText, indexOrd)
 {
 	var sql_query = "SELECT c.yid, c.name, c." + createOrderString(7, indexOrd) +
 		  "FROM ( \
-		SELECT t.year AS yid, y.name, AVG(IF(s.rating < 1, NULL, s.rating)) AS rat, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, \
+		SELECT t.year AS yid, y.name, AVG(IF(s.rating < 1, NULL, s.rating)) AS rat, AVG(IF(s.score IS NULL, 0, s.score)) AS sco, SUM(s.playcount) AS plcount, \
 		       SUM(t.length) AS leng, COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, \
 			   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, " + createWeightString(7) + " AS wei \
 		  FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y ON (t.year = y.id) LEFT JOIN genres g ON (t.genre = g.id) LEFT JOIN artists b ON (t.artist = b.id) LEFT JOIN albums a ON (t.album = a.id) LEFT JOIN artists b1 ON (a.artist = b1.id) WHERE true"
@@ -259,12 +259,28 @@ function fillYearGraph(filterText, indexOrd)
     return sql_query;
 }
 
+function fillDecadeGraph(filterText, indexOrd)
+{
+	var sql_query = "SELECT c.deca, c.deca, c." + createOrderString(8, indexOrd) +
+		  "FROM ( \
+		SELECT FLOOR(y.name/10)*10 AS deca, AVG(IF(s.rating < 1, NULL, s.rating)) AS rat, AVG(IF(s.score IS NULL, 0, s.score)) AS sco, SUM(s.playcount) AS plcount, \
+		       SUM(t.length) AS leng, COUNT(IF(s.rating < 1, NULL, s.rating)) AS numRatTr, \
+			   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, " + createWeightString(8) + " AS wei \
+		  FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y ON (t.year = y.id) LEFT JOIN genres g ON (t.genre = g.id) LEFT JOIN artists b ON (t.artist = b.id) LEFT JOIN albums a ON (t.album = a.id) LEFT JOIN artists b1 ON (a.artist = b1.id) WHERE true"
+		 + playlistImporter.createFilterString(filterText)
+		 + " GROUP BY deca \
+		HAVING deca != 0 " + (indexOrd == 0 ? (" AND numRatTr >= " + config.minTracksPerAlbum) : "")
+		 + " ORDER BY 1 \
+       ) c";
+    return sql_query;
+}
+
 function fillRatingGraph(filterText, indexOrd)
 {
-    var sql_query = "SELECT c.rating, c.rating, c." + createOrderString(8, indexOrd) + 
+    var sql_query = "SELECT c.rating, c.rating, c." + createOrderString(9, indexOrd) + 
       "FROM (\
-			SELECT s.rating, AVG(IF(y.name < 1, NULL, y.name)) AS yea, AVG(s.score) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
-				   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, " + createWeightString(8) + " AS wei \
+			SELECT s.rating, AVG(IF(y.name < 1, NULL, y.name)) AS yea, AVG(IF(s.score IS NULL, 0, s.score)) AS sco, SUM(s.playcount) AS plcount, SUM(t.length) AS leng, \
+				   COUNT(*) AS numTr, COUNT(DISTINCT t.album) AS numAl, " + createWeightString(9) + " AS wei \
 			  FROM tracks t LEFT JOIN statistics s ON (s.url = t.url) LEFT JOIN years y ON (t.year = y.id) LEFT JOIN genres g ON (t.genre = g.id) \
 			  LEFT JOIN artists b ON (t.artist = b.id) LEFT JOIN albums a ON (t.album  = a.id) LEFT JOIN artists b1 ON (a.artist = b1.id) \
 			 WHERE true"

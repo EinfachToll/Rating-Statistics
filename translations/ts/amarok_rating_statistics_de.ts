@@ -11,7 +11,7 @@ The older settings will now be cleaned up from the database, but since there is 
 Please visit the configuration tab and review the settings. Sorry for the trouble.</source>
         <translation>Es existiert eine ältere Konfiguration für dieses Skript, das in der Datenbank von Amarok gespeichert ist. Seit Version 1.2.4 werden die Einstellungen allerdings per Skript-API gespeichert (also normalerweise nach ~/kde/share/config/amarokrc).
 
-Die alten Einstellungen des Rating-Statistics-Skripts werden jetzt aus der Datenbank entfernt und die Standardeinstellungen hergestellt. Bitte konfigurieren Sie dieses Skript erneut. Entschuldigung für die Umstände!</translation>
+Die alten Einstellungen des Rating-Statistics-Skripts werden jetzt aus der Datenbank entfernt und die Standardeinstellungen hergestellt. Bitte konfigurieren Sie dieses Skript erneut. Entschuldigung für die Umstände.</translation>
     </message>
     <message>
         <source>Results</source>
@@ -211,6 +211,10 @@ Die Werte sind von links nach rechts: Deaktiviert, 50%, 100%, 150%.</translation
     <message>
         <source>Years</source>
         <translation>Jahre</translation>
+    </message>
+    <message>
+        <source>Decades</source>
+        <translation>Jahrzehnte</translation>
     </message>
     <message>
         <source>Rating</source>

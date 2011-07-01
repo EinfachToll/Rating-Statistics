@@ -23,6 +23,7 @@ var icon_length			= new QIcon(Amarok.Info.iconPath( "amarok_clock", 16));
 var icon_numtracks		= new QIcon(Amarok.Info.iconPath( "amarok_track", 16));
 var icon_numalbums		= new QIcon(Amarok.Info.iconPath( "filename-track-amarok", 16));
 var icon_label			= new QIcon(Amarok.Info.iconPath( "label-amarok", 16));
+var icon_decade			= new QIcon(Amarok.Info.iconPath( "upcomingevents-amarok", 16));
 
 
 
@@ -67,7 +68,8 @@ CustomQGraphicsScene.prototype.mouseDoubleClickEvent = function(event)
 			else break;
 		}
 		if (indexGr == 7) playlistImporter.addYear(selI);
-		if (indexGr == 8) playlistImporter.addRating(selI);
+		if (indexGr == 8) playlistImporter.addDecade(selI);
+		if (indexGr == 9) playlistImporter.addRating(selI);
 	}
 }
 
@@ -112,6 +114,7 @@ FavouritesTab.prototype.draw = function(parentWidget)
 	this.comboGroupBy.addItem(icon_genre,		qsTr("Genres"));
 	this.comboGroupBy.addItem(icon_label,		qsTr("Labels"));
 	this.comboGroupBy.addItem(icon_year,		qsTr("Years"));
+	this.comboGroupBy.addItem(icon_decade,		qsTr("Decades"));
 	this.comboGroupBy.addItem(icon_rating,		qsTr("Rating"));
 
 	this.comboOrderBy.addItem(icon_rating,		qsTr("Rating"));
@@ -178,7 +181,7 @@ FavouritesTab.prototype.onGroupChanged = function(index)
 {
 	//if(index==7 && indexOrd==7)
 		//this.comboOrderBy.setCurrentIndex(0);
-	if(index==8 && indexOrd==0)
+	if(index==9 && indexOrd==0)
 		this.comboOrderBy.setCurrentIndex(5);
 	//if(index==1 && (indexOrd==5 || indexOrd==6))
 		//this.comboOrderBy.setCurrentIndex(0);
@@ -237,10 +240,13 @@ FavouritesTab.prototype.onTypeChanged = function()
 		this.displayResults(fillLabelsPage(this.filterBox.text, indexOrd), indexOrd);
 
     if (indexGr == 7)
-        this.displayGraph(fillYearGraph(this.filterBox.text, indexOrd), indexOrd, 7);
+        this.displayGraph(fillYearGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
 
     if (indexGr == 8)
-        this.displayGraph(fillRatingGraph(this.filterBox.text, indexOrd), indexOrd, 8);
+        this.displayGraph(fillDecadeGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
+
+    if (indexGr == 9)
+        this.displayGraph(fillRatingGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
 
     this.mutex.unlock();
 }

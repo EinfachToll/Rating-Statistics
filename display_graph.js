@@ -26,8 +26,8 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd, indexGr
     var widget = scrollArea.addRect(0, 0, this.frame_width, this.frame_height, this.common.pen_mid, this.common.brush_solid_dark);
     scrollArea.sceneRect = new QRectF(0, 0, this.frame_width, this.frame_height);
 
-    var min_item       = indexGr == 7 ? query[1] : 0;
-    var max_item       = indexGr == 7 ? query[query.length - 2] : 10;
+    var min_item       = indexGr <= 8 ? query[1] : 0;
+    var max_item       = indexGr <= 8 ? query[query.length - 2] : 10;
     var items_count    = max_item - min_item + 1;
     var polygon_points = new Array();
 
@@ -70,7 +70,7 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd, indexGr
         line.setPen(this.common.pen_dark);
 
 		var txt = "";
-		if(indexGr == 8)
+		if(indexGr == 9)
 		{
 			var stars = "";
 			if(query[i] == "0")

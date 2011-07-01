@@ -136,6 +136,15 @@ PlaylistImporter.prototype.addYear = function(yearID)
 	Amarok.Playlist.addMediaList(result);
 }
 
+PlaylistImporter.prototype.addDecade = function(dec)
+{
+    msg("Adding Decade " + dec + " to playlist...");
+
+    var sql_query  = "SELECT CONCAT('file://', IF(devices.lastmountpoint IS NULL, '', devices.lastmountpoint), '/', u.rpath) FROM tracks t LEFT JOIN urls u ON t.url = u.id LEFT JOIN albums a ON a.id=t.album LEFT JOIN artists b ON (b.id=t.artist) LEFT JOIN artists b1 ON (b1.id=a.artist) LEFT JOIN genres g ON (g.id=t.genre) LEFT JOIN years y ON (y.id=t.year) LEFT JOIN devices ON devices.id = u.deviceid WHERE (y.name BETWEEN " + dec + " AND " + dec + "+9) " + this.createFilterString(this.filterText) + " ORDER BY IF(a.artist IS NULL, 1, 2), t.album, t.discnumber, t.tracknumber";
+	var result = sql_exec(sql_query);
+	Amarok.Playlist.addMediaList(result);
+}
+
 PlaylistImporter.prototype.addRating = function(rating)
 {
     msg("Adding Rating " + rating + " to playlist...");
