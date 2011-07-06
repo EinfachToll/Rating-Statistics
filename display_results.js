@@ -64,6 +64,7 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
 {
     msg("Drawing results");
 
+	var amarokPath = Amarok.Info.scriptPath().replace(/scripts\/rating_statistics/g, "");
     var maxWeight = config.reverseResults == Qt.Unchecked ? query[indexOrd + 3] : query[query.length + indexOrd - 8];
 
     for( var i = 0; i < query.length; i += 11)
@@ -72,7 +73,7 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
 
 		var imagePath = "";
 		if(query[i+1].substr(0, 18) == "amarok-sqltrackuid")
-			imagePath = QDir.homePath() + "/.kde/share/apps/amarok/albumcovers/cache/90@" + MD5(query[i+1]);
+			imagePath = amarokPath + "albumcovers/cache/90@" + MD5(query[i+1]);
 		else
 		if(query[i+1].substr(0, 1) == "/")
 			imagePath = query[i+1];
@@ -86,7 +87,7 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
 		if(query[i+1] == "")
 			imagePath = Amarok.Info.iconPath("filename-album-amarok", 64);
 		else
-			imagePath = QDir.homePath() + "/.kde/share/apps/amarok/albumcovers/large/" + MD5(query[i+1]);
+			imagePath = amarokPath + "albumcovers/large/" + MD5(query[i+1]);
 
         var weight = query[i+indexOrd+3];
 
