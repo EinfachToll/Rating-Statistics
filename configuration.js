@@ -195,29 +195,30 @@ Configuration.prototype.draw = function(parentWidget)
 
     this.buttonApply.clicked.connect( this, this.onConfigurationApply);
 
-	var minTracksTooltip = qsTr("Where this setting makes sense, just albums/genres/etc. with that many tracks are shown, and with that many rated tracks, respectively.\nA value of 1 is equivalent to disabling this feature.");
-    this.spinMinTracksPerAlbum.toolTip  = minTracksTooltip;
-	this.labelMinTracksPerAlbum.toolTip = minTracksTooltip;
+    this.spinMinTracksPerAlbum.toolTip  = qsTr("Where this setting makes sense, just albums/genres/etc. with that many tracks are shown, and with that many rated tracks, respectively.\nA value of 1 is equivalent to disabling this feature.");
+	this.labelMinTracksPerAlbum.toolTip = this.spinMinTracksPerAlbum.toolTip;
 
-	var resultsLimitTooltip = qsTr("Sets an upper limit on the number of results displayed. A lot of results might take a while to render.");
-    this.spinResultsLimit.toolTip      = resultsLimitTooltip;
-	this.labelResultsLimit.toolTip     = resultsLimitTooltip;
+    this.spinResultsLimit.toolTip      = qsTr("Sets an upper limit on the number of results displayed. A lot of results might take a while to render.");
+	this.labelResultsLimit.toolTip     = this.spinResultsLimit.toolTip;
 
-	var reverseResultsTooltip = qsTr("If set, the results are ranked from worst to best.");
-    this.checkReverseResults.toolTip   = reverseResultsTooltip;
-	this.labelReverseResults.toolTip   = reverseResultsTooltip;
+    this.checkReverseResults.toolTip   = qsTr("If set, the results are ranked from worst to best.");
+	this.labelReverseResults.toolTip   = this.checkReverseResults.toolTip;
 
     this.sliderWeightLength.toolTip    = qsTr("Sets the importance of an entry's length for ranking purposes.\n"
                                        + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
+	this.labelWeightLength.toolTip	= this.sliderWeightLength.toolTip;
 
     this.sliderWeightPlaycount.toolTip = qsTr("Sets the importance of an entry's playcount for ranking purposes.\n"
                                        + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
+	this.labelWeightPlaycount.toolTip = this.sliderWeightPlaycount.toolTip;
 
     this.sliderWeightRating.toolTip    = qsTr("Sets the importance of an entry's rating for ranking purposes.\n"
                                        + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
+	this.labelWeightRating.toolTip = this.sliderWeightRating.toolTip;
 
     this.sliderWeightScore.toolTip     = qsTr("Sets the importance of an entry's score for ranking purposes.\n"
                                        + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
+	this.labelWeightScore.toolTip = this.sliderWeightScore.toolTip;
 
     msg("Finished drawing configuration tab...");
 }

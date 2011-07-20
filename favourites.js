@@ -147,7 +147,6 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.filterBox.returnPressed.connect( this, this.onQuerySubmitted);
 
     this.filterBox.toolTip    = qsTr("Filter by artist, album, album artist, genre, label or year. Year ranges work, too.");
-    this.scrollAreaResults.toolTip = qsTr("You can double-click on this items to queue the tracks to your playlist.");
 
     msg("Finished drawing favourites tab...");
 
@@ -179,6 +178,11 @@ FavouritesTab.prototype.onQuerySubmitted = function(index)
 
 FavouritesTab.prototype.onGroupChanged = function(index)
 {
+	if(index > 0)
+		this.scrollAreaResults.toolTip = qsTr("You can double-click on this items to queue the tracks to your playlist.");
+	else
+		this.scrollAreaResults.toolTip = "";
+
 	//if(index==7 && indexOrd==7)
 		//this.comboOrderBy.setCurrentIndex(0);
 	if(index==9 && indexOrd==0)

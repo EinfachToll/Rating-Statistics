@@ -313,8 +313,8 @@ function fillGlobalStatisticsPage()
 	sql_query += "     ,   (SELECT COUNT(*) FROM albums) AS total_albums";
 	sql_query += "     ,   (SELECT COUNT(*) FROM artists) AS total_artists";
 	sql_query += "     ,   (SELECT COUNT(*) FROM tracks t JOIN statistics s ON (s.url = t.url AND s.rating > 0)) AS rated_tracks";
-	sql_query += "     ,   (SELECT COUNT(*) FROM (SELECT DISTINCT t.album FROM tracks t JOIN statistics s ON (s.url = t.url) WHERE rating > 0 GROUP BY t.album HAVING COUNT(*) >= " + config.minTracksPerAlbum + ") x ) AS rated_albums";
-	sql_query += "     ,   (SELECT COUNT(*) FROM (SELECT DISTINCT t.artist FROM tracks t JOIN statistics s ON (s.url = t.url) WHERE rating > 0 GROUP BY t.artist HAVING COUNT(*) >= " + config.minTracksPerAlbum + ") x ) AS rated_artists";
+	sql_query += "     ,   (SELECT COUNT(*) FROM (SELECT DISTINCT t.album FROM tracks t JOIN statistics s ON (s.url = t.url) WHERE rating > 0 GROUP BY t.album HAVING COUNT(*) >= " + config.minTracksPerAlbum + " UNION SELECT DISTINCT t.album FROM tracks t JOIN statistics s ON (s.url = t.url) GROUP BY t.album HAVING MIN(rating) > 0) x) AS rated_albums";
+	sql_query += "     ,   (SELECT COUNT(*) FROM (SELECT DISTINCT t.artist FROM tracks t JOIN statistics s ON (s.url = t.url) WHERE rating > 0 GROUP BY t.artist HAVING COUNT(*) >= " + config.minTracksPerAlbum + " UNION SELECT DISTINCT t.artist FROM tracks t JOIN statistics s ON (s.url = t.url) GROUP BY t.artist HAVING MIN(rating) > 0) x ) AS rated_artists";
 	sql_query += "     ,   (SELECT AVG(rating) FROM statistics WHERE rating > 0) AS avg_rating";
 	sql_query += "     ,   (SELECT AVG(if(score IS NULL, 0, score)) FROM statistics) AS avg_score";
 	sql_query += "     ,   (SELECT AVG(length) FROM tracks) AS avg_length";
