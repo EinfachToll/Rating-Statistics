@@ -29,18 +29,12 @@ function quit(){
 }
 
 function showWindowCallback() {
-  
-//     if (config.locale != "amarok_rating_statistics_en.qm"){
-        msg("Creating new translator");
-        this.trans = new QTranslator;
-        var localeFile = Amarok.Info.scriptPath() + "/translations/qm/" + config.locale;
-        msg("locale File: " + localeFile);
-        msg(this.trans.load(localeFile));
-        QCoreApplication.installTranslator(this.trans);
-//     } else {
-//         msg("trying to remove translator..." + this.trans);
-//         QCoreApplication.removeTranslator(this.trans);
-//     }
+	msg("Creating new translator");
+	this.trans = new QTranslator;
+	var localeFile = Amarok.Info.scriptPath() + "/translations/qm/amarok_rating_statistics_" + QLocale.system().name() + ".qm";
+	msg("locale File: " + localeFile);
+	msg(this.trans.load(localeFile));
+	QCoreApplication.installTranslator(this.trans);
 	
     msg("Showing main window...");
     var stWindow   = new StatisticsWindow();
@@ -55,8 +49,6 @@ function showWindowCallback() {
     msg("done");
 }
 
-msg('========== Starting ==========');
-
 if (Amarok.Window.addToolsMenu("rating_statistics", "Rating Statistics", "emblem-favorite-amarok")){
     var rating_statistics_button = Amarok.Window.ToolsMenu.rating_statistics;
     rating_statistics_button['triggered()'].connect(showWindowCallback);
@@ -69,5 +61,3 @@ var playlistImporter = new PlaylistImporter;
 config.loadConfiguration();
 
 //showWindowCallback();
-
-msg('========== Finished ==========');

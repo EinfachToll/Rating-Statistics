@@ -12,13 +12,6 @@ function StatisticsWindow()
     this.displayCommon       = new DisplayCommon();
     this.favouritesTab       = new FavouritesTab(this.displayCommon);
          
-    msg("Creating new translator");
-    this.trans = new QTranslator;
-    var localeFile = Amarok.Info.scriptPath() + "/translations/qm/" + config.locale;
-    msg("locale File: " + localeFile);
-    msg(this.trans.load(localeFile));
-    QCoreApplication.installTranslator(this.trans);
-
     config.draw(this.configurationWidget);
     config.showConfiguration();
     this.favouritesTab.draw(this.favouritesWidget);
@@ -27,7 +20,7 @@ function StatisticsWindow()
     this.mainTabWidget.addTab(this.favouritesWidget, qsTr("Favourites"));
     this.mainTabWidget.addTab(this.configurationWidget, qsTr("Configuration"));
 
-	config.buttonApply.clicked.connect( this, this.applyPressed);
+	config.buttonBox.clicked.connect(this,this.applyPressed);
 
     this.setCentralWidget(this.mainTabWidget);
 }
@@ -36,6 +29,7 @@ StatisticsWindow.prototype = new QMainWindow();
 
 StatisticsWindow.prototype.applyPressed = function()
 {
+	config.onConfigurationApply();
 	this.mainTabWidget.setCurrentIndex(0);
 	this.favouritesTab.onQuerySubmitted();
 }
