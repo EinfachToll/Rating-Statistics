@@ -43,10 +43,6 @@ function showWindowCallback() {
     msg("Removing translator");
     QCoreApplication.removeTranslator(this.trans);
     msg("done");
-    
-    msg("Removing translator");
-    QCoreApplication.removeTranslator(this.trans);
-    msg("done");
 }
 
 if (Amarok.Window.addToolsMenu("rating_statistics", "Rating Statistics", "emblem-favorite-amarok")){

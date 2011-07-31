@@ -58,8 +58,8 @@ CustomQGraphicsScene.prototype.mouseDoubleClickEvent = function(event)
 		if (indexGr == 6) playlistImporter.addLabel(id);
 	} else
 	{
-		var imax = parseInt(currentQuery[currentQuery.length - 2]);
-		var imin = parseInt(currentQuery[1]);
+		var imax = indexGr <= 8 ? parseInt(currentQuery[currentQuery.length - 2]) : 10;
+		var imin = indexGr <= 8 ? parseInt(currentQuery[1]) : 0;
 		var cliI = Math.floor((event.scenePos().x() - 10) * (imax-imin) / (this.width()-20)) + imin;
 		var selI = imin;
 		for(var i=0; i<currentQuery.length; i+=3)
@@ -146,9 +146,8 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.comboOrderBy['currentIndexChanged(int)'].connect(this, this.onOrderChanged);
     this.filterBox.returnPressed.connect( this, this.onQuerySubmitted);
 
-    this.filterBox.toolTip    = qsTr("Filter by artist, album, album artist, genre, label or year. Year ranges work, too.");
-
-    msg("Finished drawing favourites tab...");
+    this.filterBox.toolTip  = qsTr("Filter by artist, album, album artist, genre, label or year. Year ranges work, too.");
+	this.resultsAreaToolTip = qsTr("You can double-click on this items to queue the tracks to your playlist.");
 
     this.onGroupChanged();
 }
@@ -170,7 +169,7 @@ FavouritesTab.prototype.resultsShowWorking = function()
     this.scrollAreaData.sceneRect = new QRectF(0,0,1,1);
 }
 
-FavouritesTab.prototype.onQuerySubmitted = function(index)
+FavouritesTab.prototype.onQuerySubmitted = function()
 {
     msg("Query Submitted");
     this.onTypeChanged();
@@ -179,7 +178,7 @@ FavouritesTab.prototype.onQuerySubmitted = function(index)
 FavouritesTab.prototype.onGroupChanged = function(index)
 {
 	if(index > 0)
-		this.scrollAreaResults.toolTip = qsTr("You can double-click on this items to queue the tracks to your playlist.");
+		this.scrollAreaResults.toolTip = this.resultsAreaToolTip;
 	else
 		this.scrollAreaResults.toolTip = "";
 
@@ -268,8 +267,6 @@ FavouritesTab.prototype.displayStatistics = function(query_string)
     }
 
     this.statisticsPainter.drawStatistics(this.scrollAreaData, currentQuery);
-
-    msg("Finished painting statistics...");
 }
 
 FavouritesTab.prototype.displayResults = function(query_string, indexOrd)

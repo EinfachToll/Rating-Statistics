@@ -22,10 +22,6 @@ Die alten Einstellungen des Rating-Statistics-Skripts werden jetzt aus der Daten
         <translation>Eigener Wert</translation>
     </message>
     <message>
-        <source>Locale</source>
-        <translation>Sprache</translation>
-    </message>
-    <message>
         <source>Reverse Results: </source>
         <translation>Reihenfolge umkehren:</translation>
     </message>
@@ -52,10 +48,6 @@ Die alten Einstellungen des Rating-Statistics-Skripts werden jetzt aus der Daten
     <message>
         <source>Playcount Weight: </source>
         <translation>Gewicht des Wiedergabezählers:</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation>Anwenden</translation>
     </message>
     <message>
         <source>Where this setting makes sense, just albums/genres/etc. with that many tracks are shown, and with that many rated tracks, respectively.
@@ -264,12 +256,6 @@ Mehrere Filterangaben werden UND-verknüpft.</translation>
     <message>
         <source>Configuration</source>
         <translation>Einstellungen</translation>
-    </message>
-    <message>
-		<source>You will need to re-open this window for locale changes
-to take effect.</source>
-		<translation>Die Sprache wird erst geändert, wenn dieses Fenster
-erneut geöffnet wurde.</translation>
     </message>
 </context>
 </TS>

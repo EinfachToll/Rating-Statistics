@@ -47,8 +47,6 @@ StatisticsWindow.prototype.resizeEvent = function(ResizeEvent)
     this.displayCommon.changeFrameWidth(ResizeEvent.size().width() - 64);
     msg("graph painter");
     this.favouritesTab.graphPainter = new GraphPainter(this.displayCommon);
-    msg("refreshing...");
-    this.favouritesTab.onQuerySubmitted(0);
-    msg("ok");
+    this.favouritesTab.onQuerySubmitted();
 }
 
