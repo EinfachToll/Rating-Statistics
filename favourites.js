@@ -216,13 +216,10 @@ FavouritesTab.prototype.onTypeChanged = function()
     this.resultsShowWorking();
 
     if (indexGr == 0){
-		this.filterBox.enabled = false;
 		this.comboOrderBy.enabled = false;
-        this.displayStatistics(fillGlobalStatisticsPage());
-    } else {
-		this.filterBox.enabled = true;
+        this.displayStatistics(fillGlobalStatisticsPage(this.filterBox.text));
+    } else
 		this.comboOrderBy.enabled = true;
-	}
 
     if (indexGr == 1)
         this.displayResults(fillTracksPage(this.filterBox.text, indexOrd), indexOrd);

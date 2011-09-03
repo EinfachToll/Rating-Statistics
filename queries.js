@@ -226,31 +226,37 @@ function fillRatingGraph(filterText, indexOrd)
 	return sql_query;
 }
 
-function fillGlobalStatisticsPage()
+function fillGlobalStatisticsPage(filterText)
 {
-    var sql_query  = " SELECT a.total_tracks, a.total_albums, a.total_artists, a.sum_length, a.rated_tracks, \
-	  ROUND(100 * a.rated_tracks / a.total_tracks, 2), a.rated_albums, ROUND(100 * a.rated_albums  / a.total_albums, 2),\
-	  a.rated_artists, ROUND(100 * a.rated_artists / a.total_artists, 2), ROUND(a.avg_rating / 2, 1), ROUND(a.avg_score, 0), \
-	  ROUND(a.avg_length, 0) \
-	FROM (SELECT \
-			(SELECT COUNT(*) FROM tracks) AS total_tracks, \
-			(SELECT COUNT(*) FROM albums) AS total_albums, \
-			(SELECT COUNT(*) FROM artists) AS total_artists, \
-			(SELECT COUNT(*) FROM tracks t JOIN statistics s ON (s.url = t.url AND s.rating > 0)) AS rated_tracks, \
-			(SELECT COUNT(*) FROM (SELECT DISTINCT t.album FROM tracks t JOIN statistics s ON (s.url = t.url) \
-				WHERE rating > 0 GROUP BY t.album HAVING COUNT(*) >= " + config.minTracksPerAlbum + " \
-				UNION SELECT DISTINCT t.album FROM tracks t JOIN statistics s ON (s.url = t.url) \
-				GROUP BY t.album HAVING MIN(rating) > 0) x) AS rated_albums, \
-			(SELECT COUNT(*) FROM (SELECT DISTINCT t.artist FROM tracks t JOIN statistics s ON (s.url = t.url) \
-				WHERE rating > 0 GROUP BY t.artist HAVING COUNT(*) >= " + config.minTracksPerAlbum + " \
-				UNION SELECT DISTINCT t.artist FROM tracks t JOIN statistics s ON (s.url = t.url) \
-				GROUP BY t.artist HAVING MIN(rating) > 0) x ) AS rated_artists, \
-			(SELECT AVG(rating) FROM statistics WHERE rating > 0) AS avg_rating, \
-			(SELECT AVG(if(score IS NULL, 0, score)) FROM statistics) AS avg_score, \
-			(SELECT AVG(length) FROM tracks) AS avg_length, \
-			(SELECT SUM(length) FROM tracks) AS sum_length \
-		FROM dual \
-	) a;";
+	var sql_query = "SELECT COUNT(*) AS total_tracks, \
+	COUNT(DISTINCT t.album) AS total_albums, \
+	COUNT(DISTINCT t.artist) AS total_artists, \
+	SUM(t.length) AS sum_length, \
+	COUNT(DISTINCT s.id) AS rated_tracks, \
+	ROUND(100*(COUNT(DISTINCT s.id)) / COUNT(*), 2) AS perc_rated_tracks, \
+	COUNT(DISTINCT amb.album) AS rated_albums, \
+	ROUND(100*(COUNT(DISTINCT amb.album)) / COUNT(DISTINCT t.album), 2) AS perc_rated_albums, \
+	COUNT(DISTINCT bmb.artist) AS rated_artists, \
+	ROUND(100*(COUNT(DISTINCT bmb.artist)) / COUNT(DISTINCT t.artist), 2) AS perc_rated_artists, \
+	ROUND(AVG(s.rating) / 2, 1) AS avg_rating, \
+	ROUND(AVG(IF(s.score IS NULL, 0, s.score)), 0) AS avg_score, \
+	ROUND(AVG(t.length),0) AS avg_length \
+FROM tracks t \
+	LEFT JOIN artists b ON (t.artist=b.id) \
+	LEFT JOIN albums a ON (t.album=a.id) \
+	LEFT JOIN statistics s ON (s.url=t.url AND s.rating>0) \
+	LEFT JOIN years y ON (t.year=y.id) \
+	LEFT JOIN genres g ON (t.genre=g.id) \
+	LEFT JOIN artists b1 ON (b1.id=a.artist) \
+	LEFT JOIN (SELECT DISTINCT t.album FROM tracks t JOIN statistics s ON (s.url=t.url) \
+				WHERE rating>0 GROUP BY t.album HAVING COUNT(*)>=" +config.minTracksPerAlbum + "  \
+			   UNION SELECT DISTINCT t.album FROM tracks t JOIN statistics s ON (s.url=t.url) GROUP BY t.album HAVING MIN(rating)>0) amb \
+		ON (t.album=amb.album) \
+	LEFT JOIN (SELECT DISTINCT t.artist FROM tracks t JOIN statistics s ON (s.url = t.url)  \
+		WHERE rating > 0 GROUP BY t.artist HAVING COUNT(*) >= " + config.minTracksPerAlbum + "  \
+		UNION SELECT DISTINCT t.artist FROM tracks t JOIN statistics s ON (s.url = t.url)  \
+		GROUP BY t.artist HAVING MIN(rating) > 0) bmb ON (t.artist=bmb.artist) \
+	WHERE TRUE" + playlistImporter.createFilterString(filterText);
     return sql_query;
 }
 
