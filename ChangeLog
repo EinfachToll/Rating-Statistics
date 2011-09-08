@@ -1,3 +1,18 @@
+2011-09-08  Daniel Schemala <istjanichtzufassen@googlemail.com>
+    * Version 2.0.1
+    * The statistics view can now be filtered too
+    * Fixed small issue when double-clicking in graph
+
+2011-07-27  Daniel Schemala <istjanichtzufassen@googlemail.com>
+    * Version 2.0.0
+    * Separated grouping combobox from ordering combobox
+    * Added more grouping as well as ordering entities
+    * The filter boxes are merged into one big line edit
+    * Filtering by artist, album, album artist, genre, label, year and year range is now possible in every view
+    * Locale file is now selected automatically
+    * Overall GUI clearance
+    * Bug fixes, e.g. in finding the album image, computation of the weighting bar and some of the statistics, displaying of album image and graphs, adding songs to the playlist and some other small issues
+
 2011-01-24  Ioannis Gyftos <ioannis.gyftos@gmail.com>
     * Version 1.2.5
     * Internationalization support (cz, gr). Not as polished as I'd like, but whould work.
