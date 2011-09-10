@@ -44,10 +44,13 @@ function createOrderString(groupby, orderby)
 			break;
 		default:
 			if(groupby < 7) {
-				if(groupby != 1)
+				if(groupby != 1) {
 					l += " HAVING numTr >= " + config.minTracksPerAlbum;
-				if(config.reverseResults == Qt.Checked)
-					l += " AND yea > 1";
+					if(config.reverseResults == Qt.Checked)
+						l += " AND yea > 1";
+				} else
+					if(config.reverseResults == Qt.Checked)
+						l += " AND y.name > 1";
 				l += " ORDER BY ";
 			}
 			l += "yea ";
