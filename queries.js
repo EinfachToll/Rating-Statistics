@@ -1,5 +1,7 @@
 Importer.loadQtBinding( "qt.gui" );
 Importer.loadQtBinding( "qt.uitools" );
+Importer.include("query_result/album_query_result.js");
+Importer.include("query_result/album_artist_query_result.js");
 
 function createOrderString(groupby, orderby)
 {
@@ -130,24 +132,31 @@ function fillAlbumArtistsPage(filterText, orderby)
 		WHERE true" + playlistImporter.createFilterString(filterText) + "\
 		GROUP BY a.artist " + createOrderString(3, orderby) + " LIMIT " + config.resultsLimit + "\
 	) c";
-	return sql_query;
+	return AlbumArtistQueryResult(sql_exec(sql_query));
 }
 
 function fillAlbumsPage(filterText, orderby)
 {
 	var sql_query = "SELECT c.album, c.img, c.albumname, ROUND(c.rat, 1), plcount, ROUND(c.sco, 0), wei, leng, numTr, c.name, ROUND(yea, 0) \
   FROM (SELECT t.album, a.name AS albumname, \
-		  IF(i.path IS NOT NULL, i.path, CONCAT(IF(b1.name IS NOT NULL, LOWER(b1.name), ''), LOWER(a.name))) AS img, \
+		  null as img, \
 		AVG(IF(s.rating <  1, NULL, s.rating)) AS rat, AVG(IF(s.score IS NULL, 0, s.score)) AS sco, SUM(s.playcount) AS plcount, \
 		SUM(t.length) AS leng, COUNT(IF(s.rating <  1, NULL, s.rating)) AS numRatTr, COUNT(*) AS numTr, " + createWeightString(4) + " AS wei, \
 		AVG(IF(y.name <  1, NULL, y.name)) AS yea, b1.name \
 	  FROM tracks t LEFT JOIN statistics s ON (s.url =  t.url) LEFT JOIN years y ON (t.year =  y.id) \
 		LEFT JOIN genres g ON (t.genre =  g.id) LEFT JOIN artists b ON (t.artist = b.id) LEFT JOIN albums a ON (t.album=a.id) \
-		LEFT JOIN artists b1 ON (a.artist = b1.id) LEFT JOIN images i ON (a.image=i.id) \
+		LEFT JOIN artists b1 ON (a.artist = b1.id) \
 	  WHERE true" + playlistImporter.createFilterString(filterText) + " \
 	  GROUP BY t.album " + createOrderString(4, orderby) + " LIMIT " + config.resultsLimit + "\
       ) c";
-    return sql_query;
+	msg("1");
+	var a = sql_exec(sql_query);
+	msg("2");
+	msg(a);
+	var b = new AlbumQueryResult(a);
+	msg("3");
+	msg(b);
+    return new AlbumQueryResult(sql_exec(sql_query));
 }
 
 

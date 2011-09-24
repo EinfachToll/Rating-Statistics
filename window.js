@@ -1,5 +1,6 @@
 Importer.include("favourites.js");
 Importer.include("display_common.js");
+Importer.include("pixmap_cache.js");
 
 function StatisticsWindow()
 {
@@ -32,14 +33,14 @@ StatisticsWindow.prototype.applyPressed = function()
 	config.onConfigurationApply();
 	this.mainTabWidget.setCurrentIndex(0);
 	this.favouritesTab.onQuerySubmitted();
-}
+};
 
 StatisticsWindow.prototype.closeEvent = function(CloseEvent)
 {
     for (var i=0; i<2; i++){ tabWidget.removeTab(0); }
     CloseEvent.accept();
-    msg("Closing")
-}
+    msg("Closing");
+};
 
 StatisticsWindow.prototype.resizeEvent = function(ResizeEvent)
 {
@@ -48,5 +49,5 @@ StatisticsWindow.prototype.resizeEvent = function(ResizeEvent)
     msg("graph painter");
     this.favouritesTab.graphPainter = new GraphPainter(this.displayCommon);
     this.favouritesTab.onQuerySubmitted();
-}
+};
 

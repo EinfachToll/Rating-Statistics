@@ -4,17 +4,17 @@ function Configuration(){}
 Configuration.prototype.loadConfigText = function(aname, adefault)
 {
     return Amarok.Script.readConfig(aname, String(adefault));
-}
+};
 
 Configuration.prototype.loadConfig = function(aname, adefault)
 {
     return parseInt(Amarok.Script.readConfig(aname, String(adefault)));
-}
+};
 
 Configuration.prototype.saveConfig = function(aname, value)
 {
     Amarok.Script.writeConfig(aname, String(value));
-}
+};
 
 Configuration.prototype.saveCheckBox = function(aname, value)
 {
@@ -23,7 +23,7 @@ Configuration.prototype.saveCheckBox = function(aname, value)
     } else {
         this.saveConfig(aname, 1);
     }
-}
+};
 
 Configuration.prototype.loadCheckBox = function(aname, adefault)
 {
@@ -36,7 +36,7 @@ Configuration.prototype.loadCheckBox = function(aname, adefault)
     } else {
         return Qt.Checked;
     }
-}
+};
 
 Configuration.prototype.saveConfiguration = function()
 {
@@ -51,7 +51,7 @@ Configuration.prototype.saveConfiguration = function()
     this.saveConfig("weight_length",			this.weightLength);
     this.saveConfig("weight_playcount",			this.weightPlaycount);
     msg("done");
-}
+};
 
 Configuration.prototype.loadConfiguration = function()
 {
@@ -76,7 +76,7 @@ Configuration.prototype.loadConfiguration = function()
     this.weightPlaycount	= this.loadConfig('weight_playcount',		2);
     
     msg("done");
-}
+};
 
 Configuration.prototype.onConfigurationApply = function()
 {
@@ -92,7 +92,7 @@ Configuration.prototype.onConfigurationApply = function()
 
     this.saveConfiguration();
     msg("done");
-}
+};
 
 Configuration.prototype.showConfiguration = function()
 {
@@ -107,7 +107,7 @@ Configuration.prototype.showConfiguration = function()
     this.sliderWeightPlaycount.setValue(this.weightPlaycount);
     
     msg("done");
-}
+};
 
 Configuration.prototype.draw = function(parentWidget)
 {
@@ -192,4 +192,4 @@ Configuration.prototype.draw = function(parentWidget)
 	this.labelWeightScore.toolTip = this.sliderWeightScore.toolTip;
 
     msg("Finished drawing configuration tab...");
-}
+};

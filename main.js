@@ -17,6 +17,15 @@ function sql_exec(query){
 	return res;
 }
 
+function extend(subclass, superclass) {
+    function Dummy(){}
+    Dummy.prototype = superclass.prototype;
+    subclass.prototype = new Dummy();
+    subclass.prototype.constructor = subclass;
+    subclass.superclass = superclass;
+    subclass.superproto = superclass.prototype;
+}
+
 function qsTr(msg){
     return QCoreApplication.translate("Rating Statistics", msg);
 }
@@ -56,4 +65,4 @@ var config = new Configuration;
 var playlistImporter = new PlaylistImporter;
 config.loadConfiguration();
 
-//showWindowCallback();
+showWindowCallback();

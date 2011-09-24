@@ -58,7 +58,7 @@ PlaylistImporter.prototype.createFilterString = function(filterText)
 		return f;
 	}
 	else return "";
-}
+};
 
 PlaylistImporter.prototype.filterText = "";
 
@@ -72,7 +72,7 @@ PlaylistImporter.prototype.addTrack = function(trackID)
     var result = sql_exec(sql_query);
 
     Amarok.Playlist.addMedia(new QUrl(result[0]));
-}
+};
 
 PlaylistImporter.prototype.addAlbum = function(albumID)
 {
@@ -80,14 +80,14 @@ PlaylistImporter.prototype.addAlbum = function(albumID)
 
     var sql_query  = " SELECT CONCAT('file://', IF(d.lastmountpoint IS NULL, '', d.lastmountpoint), '/', u.rpath)";
         sql_query += " FROM tracks t";
-        sql_query += " JOIN urls u ON t.url = u.id"
+        sql_query += " JOIN urls u ON t.url = u.id";
 		sql_query += " LEFT JOIN albums a ON (a.id = t.album) LEFT JOIN artists b ON (b.id = t.artist) LEFT JOIN artists b1 ON (b1.id = a.artist) LEFT JOIN genres g ON (g.id = t.genre) LEFT JOIN years y ON (y.id = t.year)";
         sql_query += " LEFT JOIN devices d ON d.id = u.deviceid WHERE t.album=" + albumID + this.createFilterString(this.filterText);
         sql_query += " ORDER BY t.discnumber, t.tracknumber";
     var result = sql_exec(sql_query);
 
 	Amarok.Playlist.addMediaList(result);
-}
+};
 
 PlaylistImporter.prototype.addArtist = function(artistID)
 {
@@ -98,7 +98,7 @@ PlaylistImporter.prototype.addArtist = function(artistID)
     var result = sql_exec(sql_query);
 
 	Amarok.Playlist.addMediaList(result);
-}
+};
 
 PlaylistImporter.prototype.addAlbumArtist = function(artistID)
 {
@@ -107,7 +107,7 @@ PlaylistImporter.prototype.addAlbumArtist = function(artistID)
 	var sql_query = "SELECT CONCAT('file://', IF(devices.lastmountpoint IS NULL, '', devices.lastmountpoint), '/', u.rpath) FROM tracks t LEFT JOIN urls u ON t.url=u.id LEFT JOIN albums a ON a.id=t.album LEFT JOIN (SELECT MAX(years.name) AS yu, album FROM tracks, years WHERE tracks.year=years.id GROUP BY album) alb_maxy ON alb_maxy.album=a.id LEFT JOIN artists b ON (b.id=t.artist) LEFT JOIN artists b1 ON (b1.id=a.artist) LEFT JOIN genres g ON (g.id=t.genre) LEFT JOIN years y ON (y.id=t.year) LEFT JOIN devices ON devices.id=u.deviceid WHERE a.artist = " + artistID + this.createFilterString(this.filterText) + " ORDER BY alb_maxy.yu, t.album, t.discnumber, t.tracknumber";
 	var result = sql_exec(sql_query);
 	Amarok.Playlist.addMediaList(result);
-}
+};
 
 PlaylistImporter.prototype.addGenre = function(genreID)
 {
@@ -116,7 +116,7 @@ PlaylistImporter.prototype.addGenre = function(genreID)
     var sql_query  = "SELECT CONCAT('file://', IF(devices.lastmountpoint IS NULL, '', devices.lastmountpoint), '/', u.rpath) FROM tracks t LEFT JOIN urls u ON t.url = u.id LEFT JOIN albums a ON a.id=t.album LEFT JOIN artists b ON (b.id=t.artist) LEFT JOIN artists b1 ON (b1.id=a.artist) LEFT JOIN genres g ON (g.id=t.genre) LEFT JOIN years y ON (y.id=t.year) LEFT JOIN devices ON devices.id = u.deviceid WHERE t.genre=" + genreID + this.createFilterString(this.filterText) + " ORDER BY IF(a.artist IS NULL, 1, 2), t.album, t.discnumber, t.tracknumber";
 	var result = sql_exec(sql_query);
 	Amarok.Playlist.addMediaList(result);
-}
+};
 
 PlaylistImporter.prototype.addLabel = function(labelID)
 {
@@ -125,7 +125,7 @@ PlaylistImporter.prototype.addLabel = function(labelID)
     var sql_query  = "SELECT CONCAT('file://', IF(devices.lastmountpoint IS NULL, '', devices.lastmountpoint), '/', u.rpath) FROM urls_labels ul LEFT JOIN urls u ON ul.url = u.id LEFT JOIN tracks t ON t.url = u.id LEFT JOIN albums a ON a.id=t.album LEFT JOIN artists b ON (b.id=t.artist) LEFT JOIN artists b1 ON (b1.id=a.artist) LEFT JOIN genres g ON (g.id=t.genre) LEFT JOIN years y ON (y.id=t.year) LEFT JOIN devices ON devices.id = u.deviceid WHERE ul.label =" + labelID + this.createFilterString(this.filterText) + " ORDER BY IF(a.artist IS NULL, 1, 2), t.album, t.discnumber, t.tracknumber";
 	var result = sql_exec(sql_query);
 	Amarok.Playlist.addMediaList(result);
-}
+};
 
 PlaylistImporter.prototype.addYear = function(yearID)
 {
@@ -134,7 +134,7 @@ PlaylistImporter.prototype.addYear = function(yearID)
     var sql_query  = "SELECT CONCAT('file://', IF(devices.lastmountpoint IS NULL, '', devices.lastmountpoint), '/', u.rpath) FROM tracks t LEFT JOIN urls u ON t.url = u.id LEFT JOIN albums a ON a.id=t.album LEFT JOIN artists b ON (b.id=t.artist) LEFT JOIN artists b1 ON (b1.id=a.artist) LEFT JOIN genres g ON (g.id=t.genre) LEFT JOIN years y ON (y.id=t.year) LEFT JOIN devices ON devices.id = u.deviceid WHERE t.year=" + yearID + this.createFilterString(this.filterText) + " ORDER BY IF(a.artist IS NULL, 1, 2), t.album, t.discnumber, t.tracknumber";
 	var result = sql_exec(sql_query);
 	Amarok.Playlist.addMediaList(result);
-}
+};
 
 PlaylistImporter.prototype.addDecade = function(dec)
 {
@@ -143,7 +143,7 @@ PlaylistImporter.prototype.addDecade = function(dec)
     var sql_query  = "SELECT CONCAT('file://', IF(devices.lastmountpoint IS NULL, '', devices.lastmountpoint), '/', u.rpath) FROM tracks t LEFT JOIN urls u ON t.url = u.id LEFT JOIN albums a ON a.id=t.album LEFT JOIN artists b ON (b.id=t.artist) LEFT JOIN artists b1 ON (b1.id=a.artist) LEFT JOIN genres g ON (g.id=t.genre) LEFT JOIN years y ON (y.id=t.year) LEFT JOIN devices ON devices.id = u.deviceid WHERE (y.name BETWEEN " + dec + " AND " + dec + "+9) " + this.createFilterString(this.filterText) + " ORDER BY IF(a.artist IS NULL, 1, 2), t.album, t.discnumber, t.tracknumber";
 	var result = sql_exec(sql_query);
 	Amarok.Playlist.addMediaList(result);
-}
+};
 
 PlaylistImporter.prototype.addRating = function(rating)
 {
@@ -152,5 +152,5 @@ PlaylistImporter.prototype.addRating = function(rating)
     var sql_query  = "SELECT CONCAT('file://', IF(devices.lastmountpoint IS NULL, '', devices.lastmountpoint), '/', u.rpath) FROM tracks t LEFT JOIN statistics s ON t.url=s.url LEFT JOIN urls u ON t.url = u.id LEFT JOIN albums a ON a.id=t.album LEFT JOIN artists b ON (b.id=t.artist) LEFT JOIN artists b1 ON (b1.id=a.artist) LEFT JOIN genres g ON (g.id=t.genre) LEFT JOIN years y ON (y.id=t.year) LEFT JOIN devices ON devices.id = u.deviceid WHERE s.rating=" + rating + this.createFilterString(this.filterText) + " ORDER BY IF(a.artist IS NULL, 1, 2), t.album, t.discnumber, t.tracknumber";
 	var result = sql_exec(sql_query);
 	Amarok.Playlist.addMediaList(result);
-}
+};
 

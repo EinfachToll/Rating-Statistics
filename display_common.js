@@ -37,6 +37,8 @@ function DisplayCommon()
     this.pen_mid                    = new QPen(this.color_mid);
 
     this.refreshGradients();
+    
+    this.pixmap_cache = new PixmapCache(this);
 
     msg("done.");
 }
@@ -51,13 +53,13 @@ DisplayCommon.prototype.refreshGradients = function()
     this.gradient_reversed.setColorAt(1, this.color_mid);
     this.brush_gradient_streight    = new QBrush(this.gradient_streight);
     this.brush_gradient_reversed    = new QBrush(this.gradient_reversed);
-}
+};
 
 DisplayCommon.prototype.changeFrameWidth = function(newWidth)
 {
     this.frame_x = newWidth;
     this.refreshGradients();
-}
+};
 
 DisplayCommon.prototype.drawFrame = function(scrollArea, frame_id)
 {
@@ -74,7 +76,7 @@ DisplayCommon.prototype.drawFrame = function(scrollArea, frame_id)
     scrollArea.sceneRect = new QRect(0, 0, frame.x + frame.width - 8, frame.y + frame.height + this.frame_spacing);
 
     return frame;
-}
+};
 
 DisplayCommon.prototype.addAlbumCover = function(frame, image_filepath)
 {
@@ -82,7 +84,7 @@ DisplayCommon.prototype.addAlbumCover = function(frame, image_filepath)
     var img    = new QGraphicsPixmapItem(pixmap, frame.widget);
 
     img.moveBy(frame.x + this.albumCover_spacing + (this.albumCover_x - pixmap.width()) / 2, frame.y + this.albumCover_spacing + (this.albumCover_y - pixmap.height()) / 2);
-}
+};
 
 DisplayCommon.prototype.addWeightRating = function(frame, weight, max_weight)
 {
@@ -104,7 +106,7 @@ DisplayCommon.prototype.addWeightRating = function(frame, weight, max_weight)
     );
     weight_value.setPen(this.pen_dark);
     weight_value.setBrush(this.brush_solid_dark);
-}
+};
 
 DisplayCommon.prototype.addSimpleText = function(frame, text, y, big_font)
 {
@@ -136,5 +138,5 @@ DisplayCommon.prototype.addSimpleText = function(frame, text, y, big_font)
     if (big_font == true){
         txt.setFont(this.font_bold);
     }
-}
+};
 

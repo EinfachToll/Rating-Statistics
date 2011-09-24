@@ -1,5 +1,6 @@
 Importer.include("md5.js");
 
+
 function DisplayResults(displayCommon)
 {
     this.common = displayCommon;
@@ -29,7 +30,7 @@ DisplayResults.prototype.addEmblemText = function(frame, text, position)
                + position * (this.emblem_x + 2 * this.emblem_spacing + this.emblemText_x),
                frame.y + frame.height - this.common.text_thickness - this.emblem_y);
     txt.setBrush(this.common.brush_text);
-}
+};
 
 DisplayResults.prototype.addEmblemImage = function(frame, pixmap, position)
 {
@@ -39,7 +40,7 @@ DisplayResults.prototype.addEmblemImage = function(frame, pixmap, position)
                + 5 * this.emblem_x + this.emblem_spacing + this.emblemText_x
                + position * (this.emblem_x + 2 * this.emblem_spacing + this.emblemText_x),
                frame.y + frame.height - this.common.text_thickness - this.emblem_y);
-}
+};
 
 DisplayResults.prototype.addRating = function(frame, rating)
 {
@@ -58,62 +59,57 @@ DisplayResults.prototype.addRating = function(frame, rating)
     var halfstar = new QPixmap(Amarok.Info.scriptPath() + "/smallerstar.png").scaled(this.emblem_x * value_half_star / 2.0, this.emblem_y, Qt.IgnoreAspectRatio, Qt.SmoothTransformation);
 	var img_rating = new QGraphicsPixmapItem(halfstar, frame.widget);
 	img_rating.moveBy(x, y);
-}
+};
 
-DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, indexOrd)
+DisplayResults.prototype.drawResults = function (scrollArea, result, indexGr, indexOrd)
 {
     msg("Drawing results");
+    
+    msg("max weight");
+    var maxWeight = config.reverseResults == Qt.Unchecked ? result.get_first("weight") : result.get_last("weight");
+    msg(maxWeight);
+    
+    
+    while (result.read_next() != null) {
+        msg("Processing row " + result.current_row_id() + " /" + result.get("album_name"));
+        
+        var frame = this.common.drawFrame(scrollArea, result.current_row_id() - 1);
 
-	var amarokPath = Amarok.Info.scriptPath().replace(/scripts\/rating_statistics/g, "");
-    var maxWeight = config.reverseResults == Qt.Unchecked ? query[indexOrd + 3] : query[query.length + indexOrd - 8];
+        
+        var pixmap = this.common.pixmap_cache.get_album_pixmap(0);
+        if (indexGr == 3 || indexGr == 4){
+            pixmap = this.common.pixmap_cache.get_album_pixmap(result.get("album_id"));
+        } else {
+            msg(indexGr);
+        }
 
-    for( var i = 0; i < query.length; i += 11)
-    {
-        var frame = this.common.drawFrame(scrollArea, i / 11);
-
-		var imagePath = "";
-		if(query[i+1].substr(0, 18) == "amarok-sqltrackuid")
-			imagePath = amarokPath + "albumcovers/cache/90@" + MD5(query[i+1]);
-		else
-		if(query[i+1].substr(0, 1) == "/")
-			imagePath = query[i+1];
-		else
-		if(query[i+1] == "label")
-			imagePath = Amarok.Info.iconPath("label-amarok", 64);
-		else
-		if(query[i+1] == "genre")
-			imagePath = Amarok.Info.iconPath("filename-genre-amarok", 64);
-		else
-		if(query[i+1] == "")
-			imagePath = Amarok.Info.iconPath("filename-album-amarok", 64);
-		else
-			imagePath = amarokPath + "albumcovers/large/" + MD5(query[i+1]);
-
-        var weight = query[i+indexOrd+3];
-
-        var len_hour = Math.floor(query[i+7]/3600000);
-        var len_min  = Math.floor((query[i+7]/1000 - len_hour*3600)/60);
-        var len_sec  = Math.floor((query[i+7]/1000)%60);
+       
+        var len_hour = Math.floor(result.get("length")/3600000);
+        var len_min  = Math.floor((result.get("length")/1000 - len_hour*3600)/60);
+        var len_sec  = Math.floor((result.get("length")/1000)%60);
         var len_txt  = (len_hour > 0)
                       ? len_hour + ":" + (len_min<10?"0"+len_min:len_min) + ":" + (len_sec<10?"0"+len_sec:len_sec) //lame, but i'm in a hurry, cba to look it up
                       : len_min + ":" + (len_sec<10?"0"+len_sec:len_sec);
+                      
+        var img = new QGraphicsPixmapItem(pixmap, frame.widget);
+        img.moveBy(frame.x + this.common.albumCover_spacing, frame.y + this.common.albumCover_spacing);
 
-        this.common.addAlbumCover(frame, imagePath);
-        this.common.addWeightRating(frame, weight, maxWeight);
-        this.common.addSimpleText(frame, query[i+2],  0, true);
-        this.common.addSimpleText(frame, query[i+9] + (indexGr != 1 && indexGr != 4 ? " " + (parseInt(query[i+9])>1 ? qsTr("albums") : qsTr("album")) : (query[i+9]=="" ? qsTr("V.A.") : "")), this.common.font_bold_height, false);
-        this.common.addSimpleText(frame, query[i+8] + (indexGr != 1 ? " " + (parseInt(query[i+8])>1 ? qsTr("tracks") : qsTr("track")) : ""), this.common.font_bold_height + this.common.font_height, false);
-        this.addRating(frame, query[i+3]);
+        this.common.addWeightRating(frame, result.get("weight"), maxWeight);
+        this.common.addSimpleText(frame, result.get("album_name"),  0, true);
+        this.common.addSimpleText(frame, result.get("artist") + (indexGr != 1 && indexGr != 4 ? " " + (parseInt(result.get("artist"))>1 ? qsTr("albums") : qsTr("album")) : (result.get("artist")=="" ? qsTr("V.A.") : "")), this.common.font_bold_height, false);
+        this.common.addSimpleText(frame, result.get("track_count") + (indexGr != 1 ? " " + (parseInt(result.get("track_count"))>1 ? qsTr("tracks") : qsTr("track")) : ""), this.common.font_bold_height + this.common.font_height, false);
+        this.addRating(frame, result.get("rating"));
         this.addEmblemImage(frame, this.pixmap_score, 0);
-		var score = Math.round(parseFloat(query[i+5]))
+        var score = Math.round(parseFloat(result.get("score")));
         this.addEmblemText(frame, String( isNaN(score) ? 0 : score), 0);
         this.addEmblemImage(frame, this.pixmap_playcount, 1);
-        this.addEmblemText(frame, query[i+4], 1);
+        this.addEmblemText(frame, result.get("playcount"), 1);
         this.addEmblemImage(frame, this.pixmap_length, 2);
         this.addEmblemText(frame, len_txt, 2);
-    }
+        
+    } while (row != null);
 
     msg("Finished painting results...");
 
-}
+};
 

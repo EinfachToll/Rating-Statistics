@@ -17,7 +17,7 @@ function GraphPainter(displayCommon)
     this.gradient_up.setColorAt(1, this.common.color_light);
     this.brush_gradient_up = new QBrush(this.gradient_up);
     msg("GraphPainter initialized.");
-}
+};
 
 GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd, indexGr)
 {
@@ -101,4 +101,4 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd, indexGr
         txt.rotate(270);
         txt.setBrush(this.common.brush_text);
     }
-}
+};

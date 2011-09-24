@@ -44,4 +44,4 @@ StatisticsPainter.prototype.drawStatistics = function(scrollArea, query)
                     ? len_hour + "h " + len_min + "m " + len_sec + "s"
                     : len_min + "m " + len_sec + "s";
     this.common.addSimpleText(frame_average, qsTr("average length: ") + len_txt, this.common.font_bold_height + 2 * this.common.font_height, false);
-}
+};

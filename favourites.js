@@ -26,16 +26,6 @@ var icon_label			= new QIcon(Amarok.Info.iconPath( "label-amarok", 16));
 var icon_decade			= new QIcon(Amarok.Info.iconPath( "upcomingevents-amarok", 16));
 
 
-
-function extend(subclass, superclass) {
-    function Dummy(){}
-    Dummy.prototype = superclass.prototype;
-    subclass.prototype = new Dummy();
-    subclass.prototype.constructor = subclass;
-    subclass.superclass = superclass;
-    subclass.superproto = superclass.prototype;
-}
-
 function CustomQGraphicsScene() {
     CustomQGraphicsScene.superclass.call(this);
     msg("CustomQGraphicsScene constructed");
@@ -71,7 +61,7 @@ CustomQGraphicsScene.prototype.mouseDoubleClickEvent = function(event)
 		if (indexGr == 8) playlistImporter.addDecade(selI);
 		if (indexGr == 9) playlistImporter.addRating(selI);
 	}
-}
+};
 
 function FavouritesTab(displayCommon)
 {
@@ -150,30 +140,30 @@ FavouritesTab.prototype.draw = function(parentWidget)
 	this.resultsAreaToolTip = qsTr("You can double-click on this items to queue the tracks to your playlist.");
 
     this.onGroupChanged();
-}
+};
 
 FavouritesTab.prototype.closeEvent = function(CloseEvent)
 {
     msg("Close event received on FavouritesTab");
-}
+};
 
 FavouritesTab.prototype.resultsShowNone = function()
 {
     this.scrollAreaData.clear();
     this.scrollAreaData.sceneRect = new QRectF(0,0,1,1);
-}
+};
 
 FavouritesTab.prototype.resultsShowWorking = function()
 {
     this.scrollAreaData.clear();
     this.scrollAreaData.sceneRect = new QRectF(0,0,1,1);
-}
+};
 
 FavouritesTab.prototype.onQuerySubmitted = function()
 {
     msg("Query Submitted");
     this.onTypeChanged();
-}
+};
 
 FavouritesTab.prototype.onGroupChanged = function(index)
 {
@@ -190,7 +180,7 @@ FavouritesTab.prototype.onGroupChanged = function(index)
 		//this.comboOrderBy.setCurrentIndex(0);
 		
 	this.onTypeChanged();
-}
+};
 
 FavouritesTab.prototype.onOrderChanged = function(index)
 {
@@ -203,7 +193,7 @@ FavouritesTab.prototype.onOrderChanged = function(index)
 		this.comboGroupBy.setCurrentIndex(2);
 		*/
 	this.onTypeChanged();
-}
+};
 
 FavouritesTab.prototype.onTypeChanged = function()
 {
@@ -230,9 +220,10 @@ FavouritesTab.prototype.onTypeChanged = function()
 	if (indexGr == 3)
 		this.displayResults(fillAlbumArtistsPage(this.filterBox.text, indexOrd), indexOrd);
 
-    if (indexGr == 4)
-        this.displayResults(fillAlbumsPage(this.filterBox.text, indexOrd), indexOrd);
-
+    if (indexGr == 4){
+        var result = fillAlbumsPage(this.filterBox.text, indexOrd);
+        this.displayResults(result, indexOrd);
+    }
     if (indexGr == 5)
         this.displayResults(fillGenresPage(this.filterBox.text, indexOrd), indexOrd);
 
@@ -249,7 +240,7 @@ FavouritesTab.prototype.onTypeChanged = function()
         this.displayGraph(fillRatingGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
 
     this.mutex.unlock();
-}
+};
 
 FavouritesTab.prototype.displayStatistics = function(query_string)
 {
@@ -264,22 +255,20 @@ FavouritesTab.prototype.displayStatistics = function(query_string)
     }
 
     this.statisticsPainter.drawStatistics(this.scrollAreaData, currentQuery);
-}
+};
 
-FavouritesTab.prototype.displayResults = function(query_string, indexOrd)
+FavouritesTab.prototype.displayResults = function(result, indexOrd)
 {
     msg("Painting results...");
 
-    currentQuery = sql_exec(query_string);
-
-    if (currentQuery.length == 0){
+    if (result.size() == 0){
         this.resultsShowNone();
         msg("Finished painting results (none)...");
         return;
     }
 
-    this.Results_Painter.drawResults(this.scrollAreaData, currentQuery, indexGr, indexOrd);
-}
+    this.Results_Painter.drawResults(this.scrollAreaData, result, indexGr, indexOrd);
+};
 
 FavouritesTab.prototype.displayGraph = function(query_string, orderby, groupby)
 {
@@ -294,4 +283,4 @@ FavouritesTab.prototype.displayGraph = function(query_string, orderby, groupby)
     }
 
     this.graphPainter.drawGraph(this.scrollAreaData, currentQuery, orderby, groupby);
-}
+};
