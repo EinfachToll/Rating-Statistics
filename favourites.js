@@ -3,6 +3,13 @@ Importer.include("queries.js");
 Importer.include("display_results.js");
 Importer.include("display_statistics.js");
 Importer.include("display_graph.js");
+Importer.include("queries/general_statistics.js");
+Importer.include("queries/album_artist.js");
+Importer.include("queries/album.js");
+Importer.include("queries/artists.js");
+Importer.include("queries/track.js");
+
+Importer.include("QueryManager.js");
 
 var currentQuery = new Array();
 var indexGr = 0;
@@ -70,6 +77,7 @@ function FavouritesTab(displayCommon)
     this.graphPainter      = new GraphPainter(displayCommon);
 
     this.mutex             = new QMutex(1);
+    this.queryManager      = new QueryManager();
     msg("FavouritesTab initialized.");
 }
 
@@ -91,10 +99,12 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.comboGroupBy			= new QComboBox(parentWidget);
 	this.comboOrderBy			= new QComboBox(parentWidget);
 
-    this.scrollAreaData     = new CustomQGraphicsScene(0, 0, 350, 600, parentWidget);
+    this.scrollAreaData     = new CustomQGraphicsScene(0, 0, 350, 50, parentWidget);
     this.scrollAreaResults  = new QGraphicsView(this.scrollAreaData, parentWidget);
 	this.scrollAreaResults.alignment = Qt.AlignHCenter;
     this.scrollAreaData.backgroundBrush = new QBrush(QApplication.palette().color(QPalette.Button), Qt.SolidPattern);
+    
+	this.htmlArea = new QTextEdit(parentWidget);
 
 	this.comboGroupBy.addItem(icon_statistics,	qsTr("Statistics"));
 	this.comboGroupBy.addItem(icon_track,		qsTr("Tracks"));
@@ -123,7 +133,10 @@ FavouritesTab.prototype.draw = function(parentWidget)
 	this.groupLayoutSearch.addWidget(this.orderByLabel,		1, 3, 1, 1, Qt.AlignRight);
 	this.groupLayoutSearch.addWidget(this.comboOrderBy,		1, 4, 1, 2);
 
-    this.groupLayoutResults.addWidget(this.scrollAreaResults, 0, 0);
+    this.groupLayoutResults.addWidget(this.htmlArea, 0, 0);
+    this.groupLayoutResults.addWidget(this.scrollAreaResults, 0, 1);
+    
+    this.scrollAreaResults.hide();
 
 	this.groupBoxSearch.flat = true;
 	this.groupBoxResults.flat = true;
@@ -203,71 +216,91 @@ FavouritesTab.prototype.onTypeChanged = function()
     msg("Query Type changed to " + indexGr + ", " + indexOrd);
     if (this.mutex.tryLock(0) == false) return;
 
-    this.resultsShowWorking();
-
-    if (indexGr == 0){
-		this.comboOrderBy.enabled = false;
-        this.displayStatistics(fillGlobalStatisticsPage(this.filterBox.text));
-    } else
-		this.comboOrderBy.enabled = true;
-
-    if (indexGr == 1)
-        this.displayResults(fillTracksPage(this.filterBox.text, indexOrd), indexOrd);
-
-    if (indexGr == 2)
-        this.displayResults(fillArtistsPage(this.filterBox.text, indexOrd), indexOrd);
-
-	if (indexGr == 3)
-		this.displayResults(fillAlbumArtistsPage(this.filterBox.text, indexOrd), indexOrd);
-
-    if (indexGr == 4){
-        var result = fillAlbumsPage(this.filterBox.text, indexOrd);
-        this.displayResults(result, indexOrd);
+    try{
+	    this.resultsShowWorking();
+	    
+	    this.queryManager.create_tracks_table(this.filterBox.text);
+	
+	    if (indexGr == 0){
+			this.comboOrderBy.enabled = false;
+	        this.displayStatistics(this.filterBox.text);
+	    } else
+			this.comboOrderBy.enabled = true;
+	
+	    if (indexGr == 1){
+	        var result = new Track(playlistImporter.createFilterString(this.filterBox.text), indexOrd);
+	        this.displayResults(result, indexOrd);
+	    }
+	    if (indexGr == 2){
+	        var result = new Artists(playlistImporter.createFilterString(this.filterBox.text), indexOrd);
+			this.displayResults(result, indexOrd);
+	    }
+		if (indexGr == 3){
+			var result = new AlbumArtist(playlistImporter.createFilterString(this.filterBox.text), indexOrd);
+			this.displayResults(result, indexOrd);
+		}
+	    if (indexGr == 4){
+	    	var result = new Album(playlistImporter.createFilterString(this.filterBox.text), indexOrd);
+	        //var result = fillAlbumsPage(this.filterBox.text, indexOrd);
+	        //msg(result);
+	        this.displayResults(result, indexOrd);
+	    }
+	    if (indexGr == 5)
+	        this.displayResults(fillGenresPage(this.filterBox.text, indexOrd), indexOrd);
+	
+		if (indexGr == 6)
+			this.displayResults(fillLabelsPage(this.filterBox.text, indexOrd), indexOrd);
+	
+	    if (indexGr == 7)
+	        this.displayGraph(fillYearGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
+	
+	    if (indexGr == 8)
+	        this.displayGraph(fillDecadeGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
+	
+	    if (indexGr == 9)
+	        this.displayGraph(fillRatingGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
+    } catch (e){
+    	Amarok.debug(e);
     }
-    if (indexGr == 5)
-        this.displayResults(fillGenresPage(this.filterBox.text, indexOrd), indexOrd);
-
-	if (indexGr == 6)
-		this.displayResults(fillLabelsPage(this.filterBox.text, indexOrd), indexOrd);
-
-    if (indexGr == 7)
-        this.displayGraph(fillYearGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
-
-    if (indexGr == 8)
-        this.displayGraph(fillDecadeGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
-
-    if (indexGr == 9)
-        this.displayGraph(fillRatingGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
 
     this.mutex.unlock();
 };
+
+//FavouritesTab.prototype.displayStatistics = function(query_string)
+//{
+//    msg("Painting statistics...");
+//
+//    currentQuery = sql_exec(query_string);
+//
+//    if (currentQuery.length == 0){
+//        this.resultsShowNone();
+//        msg("Got no statistics!!");
+//        return;
+//    }
+//
+//    this.statisticsPainter.drawStatistics2(this.htmlArea, currentQuery);
+//};
 
 FavouritesTab.prototype.displayStatistics = function(query_string)
 {
     msg("Painting statistics...");
 
-    currentQuery = sql_exec(query_string);
+    currentQuery = new GeneralStatistics(playlistImporter.createFilterString(query_string));
 
-    if (currentQuery.length == 0){
-        this.resultsShowNone();
-        msg("Got no statistics!!");
-        return;
-    }
-
-    this.statisticsPainter.drawStatistics(this.scrollAreaData, currentQuery);
+    this.Results_Painter.drawResults2(this.htmlArea, currentQuery, 0, 0);
 };
 
 FavouritesTab.prototype.displayResults = function(result, indexOrd)
 {
     msg("Painting results...");
+    
+//    if (result.size() == 0){
+//        this.resultsShowNone();
+//        msg("Finished painting results (none)...");
+//        return;
+//    }
 
-    if (result.size() == 0){
-        this.resultsShowNone();
-        msg("Finished painting results (none)...");
-        return;
-    }
-
-    this.Results_Painter.drawResults(this.scrollAreaData, result, indexGr, indexOrd);
+    this.Results_Painter.drawResults2(this.htmlArea, result, indexGr, indexOrd);
 };
 
 FavouritesTab.prototype.displayGraph = function(query_string, orderby, groupby)

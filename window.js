@@ -44,10 +44,10 @@ StatisticsWindow.prototype.closeEvent = function(CloseEvent)
 
 StatisticsWindow.prototype.resizeEvent = function(ResizeEvent)
 {
-    msg("resizing...");
-    this.displayCommon.changeFrameWidth(ResizeEvent.size().width() - 64);
-    msg("graph painter");
-    this.favouritesTab.graphPainter = new GraphPainter(this.displayCommon);
-    this.favouritesTab.onQuerySubmitted();
+//    msg("resizing...");
+//    this.displayCommon.changeFrameWidth(ResizeEvent.size().width() - 64);
+//    msg("graph painter");
+//    this.favouritesTab.graphPainter = new GraphPainter(this.displayCommon);
+//    this.favouritesTab.onQuerySubmitted();
 };
 

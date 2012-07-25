@@ -3,18 +3,44 @@ Importer.loadQtBinding( "qt.uitools" );
 Importer.include("query_result/album_query_result.js");
 Importer.include("query_result/album_artist_query_result.js");
 
+function findArtistAlbumCover(artist_id)
+{
+	return sql_exec([
+		"select distinct",
+	    "	a.id",
+		"from",
+		"    tracks t",
+		"join",
+		"    albums a on",
+		"        t.album = a.id",
+		"join",
+		"    years y on",
+		"        t.year = y.id",
+		"join",
+		"    images i on",
+		"        a.image = i.id",
+		"        and i.path != 'AMAROK_UNSET_MAGIC'",
+		"where",
+		"    t.artist = " + artist_id,
+		"order by",
+		"    y.name desc",
+		"limit",
+		"    5",
+    ].join(' '));
+}
+
 function createOrderString(groupby, orderby)
 {
 	l = "";
 	switch(orderby) {
 		case 0:
 			if(groupby ==1)
-				l += " AND s.rating > 0 ";
+				; //l += " AND s.rating > 0 ";
 			else if(groupby < 7)
 				l += " HAVING numRatTr >= " + config.minTracksPerAlbum;
 			if(groupby < 7)
 				l += " ORDER BY ";
-			l += "rat ";
+			l += "rating ";
 			break;
 		case 1:
 			if(groupby < 7) l += " ORDER BY ";
@@ -116,10 +142,6 @@ var sql_query = "SELECT c.artist, \
 function fillAlbumArtistsPage(filterText, orderby)
 {
 	var sql_query = "SELECT c.artist, \
-		IF((SELECT auu.image FROM albums auu WHERE auu.id = c.anyalb) IS NOT NULL, \
-				(SELECT iuu.path FROM albums auu JOIN images iuu ON auu.image=iuu.id WHERE auu.id = c.anyalb), \
-				CONCAT(LOWER((SELECT buu.name FROM albums auu JOIN artists buu ON auu.artist=buu.id WHERE auu.id=c.anyalb)), \
-				LOWER((SELECT auu.name FROM albums auu WHERE auu.id=c.anyalb)))) , \
 		c.name, ROUND(c.rat, 1), plcount, ROUND(c.sco, 0), wei, leng, numTr, numAl, ROUND(yea, 0) \
   FROM ( SELECT a.artist, \
 		(SELECT au.id FROM albums au where au.artist = a.artist ORDER BY RAND() LIMIT 1) AS anyalb, \
@@ -132,7 +154,7 @@ function fillAlbumArtistsPage(filterText, orderby)
 		WHERE true" + playlistImporter.createFilterString(filterText) + "\
 		GROUP BY a.artist " + createOrderString(3, orderby) + " LIMIT " + config.resultsLimit + "\
 	) c";
-	return AlbumArtistQueryResult(sql_exec(sql_query));
+	return new AlbumArtistQueryResult(sql_exec(sql_query));
 }
 
 function fillAlbumsPage(filterText, orderby)

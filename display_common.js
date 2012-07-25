@@ -37,8 +37,6 @@ function DisplayCommon()
     this.pen_mid                    = new QPen(this.color_mid);
 
     this.refreshGradients();
-    
-    this.pixmap_cache = new PixmapCache(this);
 
     msg("done.");
 }
@@ -139,4 +137,3 @@ DisplayCommon.prototype.addSimpleText = function(frame, text, y, big_font)
         txt.setFont(this.font_bold);
     }
 };
-
