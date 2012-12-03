@@ -104,7 +104,7 @@ FavouritesTab.prototype.draw = function(parentWidget)
 	this.scrollAreaResults.alignment = Qt.AlignHCenter;
     this.scrollAreaData.backgroundBrush = new QBrush(QApplication.palette().color(QPalette.Button), Qt.SolidPattern);
     
-	this.htmlArea = new QTextEdit(parentWidget);
+	this.htmlArea = new QWebView(parentWidget);
 
 	this.comboGroupBy.addItem(icon_statistics,	qsTr("Statistics"));
 	this.comboGroupBy.addItem(icon_track,		qsTr("Tracks"));

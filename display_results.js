@@ -16,17 +16,31 @@ function DisplayResults(displayCommon)
     this.pixmap_score     = new QPixmap(Amarok.Info.iconPath( "love-amarok", this.emblem_x));
     this.pixmap_length    = new QPixmap(Amarok.Info.iconPath( "amarok_clock", this.emblem_x));
     
-    this.icon_playcount   = Amarok.Info.iconPath("amarok_playcount", 16);
-    this.icon_score       = Amarok.Info.iconPath("love-amarok", 16);
-    this.icon_length      = Amarok.Info.iconPath("amarok_clock", 16);
-    this.icon_star_full   = '<img src="' + Amarok.Info.scriptPath() + '/smallerstar.png"/>';
-    this.icon_star_0      = '<img src="' + Amarok.Info.scriptPath() + '/star_0.png"/>';
-    this.icon_star_1      = '<img src="' + Amarok.Info.scriptPath() + '/star_1.png"/>';
-    this.icon_star_2      = '<img src="' + Amarok.Info.scriptPath() + '/star_2.png"/>';
-    this.icon_star_3      = '<img src="' + Amarok.Info.scriptPath() + '/star_3.png"/>';
+    this.icon_playcount   = "file://" + Amarok.Info.iconPath("amarok_playcount", 16);
+    this.icon_score       = "file://" + Amarok.Info.iconPath("love-amarok", 16);
+    this.icon_length      = "file://" + Amarok.Info.iconPath("amarok_clock", 16);
+    this.icon_star_full   = '<img src="file://' + Amarok.Info.scriptPath() + '/smallerstar.png"/>';
+    this.icon_star_0      = '<img src="file://' + Amarok.Info.scriptPath() + '/star_0.png"/>';
+    this.icon_star_1      = '<img src="file://' + Amarok.Info.scriptPath() + '/star_1.png"/>';
+    this.icon_star_2      = '<img src="file://' + Amarok.Info.scriptPath() + '/star_2.png"/>';
+    this.icon_star_3      = '<img src="file://' + Amarok.Info.scriptPath() + '/star_3.png"/>';
     
-    this.html_color_dark  = qcolor_to_html(QApplication.palette().color(QPalette.Dark));
-
+    this.css              = read_local_file("/queries/_style.css");
+    this.css_replace = {
+        color_light    : qcolor_to_html(QApplication.palette().color(QPalette.Light)),
+        color_mid      : qcolor_to_html(QApplication.palette().color(QPalette.Mid)),
+        color_button   : qcolor_to_html(QApplication.palette().color(QPalette.Button)),
+        color_dark     : qcolor_to_html(QApplication.palette().color(QPalette.Dark)),
+        color_text     : qcolor_to_html(QApplication.palette().color(QPalette.Text)),
+        font_family    : QApplication.font().family(),
+        font_size      : QApplication.font().pointSize() + 2,
+        font_color     : qcolor_to_html(QApplication.palette().color(QPalette.Text)),
+    };
+    
+    for (x in this.css_replace){
+        this.css = this.css.replace(new RegExp("\\$" + x + "\\$",'g'), this.css_replace[x]);
+    }
+    
     msg("DisplayResults initialized.");
 }
 
@@ -71,94 +85,19 @@ DisplayResults.prototype.addRating = function(frame, rating)
 	img_rating.moveBy(x, y);
 };
 
-DisplayResults.prototype.drawResults = function (scrollArea, result, indexGr, indexOrd)
-{
-    msg("Drawing results");
-
-    var maxWeight = config.reverseResults == Qt.Unchecked ? result.get_first("weight") : result.get_last("weight");
-    var html = "";
-//    var doc = new QTextDocument();
-
-    while (result.read_next()) {
-        msg("Processing row " + result.current_row_id() + " /" + result.get("album_name"));
-
-        var pixmap;
-        if (indexGr == 2 || indexGr == 3){
-        	pixmap = this.common.pixmap_cache.get_artist_pixmap(result.get("id"));
-        }
-        if (indexGr == 4){
-            pixmap = this.common.pixmap_cache.get_album_pixmap(result.get("id"));
-        } else {
-            msg(indexGr);
-        }
-        
-        Amarok.debug("cover done");
-
-
-        var len_hour = Math.floor(result.get("length")/3600000);
-        var len_min  = Math.floor((result.get("length")/1000 - len_hour*3600)/60);
-        var len_sec  = Math.floor((result.get("length")/1000)%60);
-        var len_txt  = (len_hour > 0)
-                      ? len_hour + ":" + (len_min<10?"0"+len_min:len_min) + ":" + (len_sec<10?"0"+len_sec:len_sec) //lame, but i'm in a hurry, cba to look it up
-                      : len_min + ":" + (len_sec<10?"0"+len_sec:len_sec);
-                      
-
-        //doc.addResource(QTextDocument.ImageResource, new QUrl("artist://" + result.current_row_id() + ".png"), pixmap);
-        
-        
-        
-//        QTextDocument *doc = new QTextDocument;
-//        doc->addResource( QTextDocument::ImageResource, QUrl( "myImage.png" ), QPixmap( ":myImage" ) );
-                  
-        var file = new QFile(Amarok.Info.scriptPath() + "/html/result_frame.html");
-        file.open(QIODevice.ReadOnly);
-        var ts = new QTextStream(file);
-        var hh = ts.readAll();
-        hh = hh.replace('$rowid$', result.current_row_id())
-        	   .replace('$id', result.get('id'))
-		       .replace('$cover$', pixmap)
-			   .replace('$name$', result.get('name'))
-			   .replace('$info$', result.get('info'))
-			   .replace('$playcount$', result.get('playcount'))
-			   .replace('$score$', result.get('score'))
-			   .replace('$length$', len_txt)
-			   .replace('$icon-playcount$', this.icon_playcount)
-			   .replace('$icon-score$', this.icon_score)
-			   .replace('$icon-length$', this.icon_length)
-			   .replace('$rating$', this._calc_rating(result.get('rating')))
-			   .replace('$weight-ratio$', Math.round(result.get('weight') / maxWeight * 100))
-			   .replace('$color-dark$', this.html_color_dark)
-			   ;
-
-        html += hh;
-
-//        if (result.current_row_id() == 5){
-//        	break;
-//        }
-
-    };
-    
-    scrollArea.html = html;
-//    scrollArea.document = doc;
-    scrollArea.show();
-
-    msg("Finished painting results...");
-
-};
-
 DisplayResults.prototype.drawResults2 = function (scrollArea, result, indexGr, indexOrd)
 {
     msg("Drawing results2");
 
-    var maxWeight = config.reverseResults == Qt.Unchecked ? result.get_first("weight") : result.get_last("weight");
-    var html = "";
+    var html = this.css;   
 
     while (result.read_next()) {
         msg("Drawing row " + result.current_row_id());
         html += result.get_html();
     };
     
-    scrollArea.html = html;
+    Amarok.debug(html);
+    scrollArea.setHtml(html, new QUrl(Amarok.Info.scriptPath().replace(/scripts\/rating_statistics/g, "")));
     scrollArea.show();
 
     msg("Finished painting results...");

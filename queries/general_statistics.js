@@ -18,14 +18,16 @@ function GeneralStatistics(filter)
 		"avg_length"
 	];
 	
-	var sql_replace = new Object;
-	sql_replace.FILTER = filter;
-	sql_replace.MIN_TRACKS_PER_ALBUM = config.minTracksPerAlbum;
+	var sql_replace = {
+	    FILTER               : filter,
+	    MIN_TRACKS_PER_ALBUM : config.minTracksPerAlbum,
+	};
 	
-	var html_replace = new Object;
-	html_replace.icon_collection = Amarok.Info.scriptPath() + "/collectiongreen.png";
-	html_replace.icon_rate       = Amarok.Info.scriptPath() + "/notegreen.png";
-	html_replace.icon_track      = Amarok.Info.scriptPath() + "/halfstargreen.png";
+	var html_replace = {
+	    icon_collection : "file://" + Amarok.Info.scriptPath() + "/collectiongreen.png",
+	    icon_rate       : "file://" + Amarok.Info.scriptPath() + "/notegreen.png",
+	    icon_track      : "file://" + Amarok.Info.scriptPath() + "/halfstargreen.png",
+	};
 	
 	var column_process = {
 		sum_length : format_length,

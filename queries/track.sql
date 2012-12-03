@@ -4,7 +4,7 @@ select
     title,
     rating,
     playcount,
-    score,
+    round(score),
     rating as weight,
     length,
     album_name,

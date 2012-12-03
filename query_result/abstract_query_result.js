@@ -5,6 +5,7 @@ function AbstractQueryResult(name, columns, sql_replace, html_replace, column_pr
 
     msg("constructing abstract");
     this.name           = name;
+    this.css            = read_local_file("/queries/_style.css");
     this.html           = read_local_file("/queries/" + name + ".html");
     this.sql            = read_local_file("/queries/" + name + ".sql");
     this.columns        = columns;
@@ -71,11 +72,12 @@ AbstractQueryResult.prototype.get_html = function()
 {
 	var html = this.html;
 	html = html.replace("$rowid$", this.current_row_id());
+	html = html.replace("$evenodd$", (this.current_row_id() % 2 == 0 ? "even" : "odd"));
 	
 	for (x in this.columns){
 		var value = this.get(this.columns[x]);
 		if (this.column_process[this.columns[x]] != undefined){
-			Amarok.debug("Processing column: " + this.columns[x]);
+//			Amarok.debug("Processing column: " + this.columns[x]);
 			value = this.column_process[this.columns[x]](value);
 		}
 		
