@@ -3,10 +3,10 @@ Importer.loadQtBinding( "qt.sql" );
 Importer.loadQtBinding( "qt.gui");
 Importer.loadQtBinding("qt.webkit");
 
+Importer.include("filesystem.js");
 Importer.include("configuration.js");
 Importer.include("window.js");
 Importer.include("playlist.js");
-Importer.include("filesystem.js");
 
 function msg( str ){
     Amarok.debug(str);
@@ -64,9 +64,9 @@ if (Amarok.Window.addToolsMenu("rating_statistics", "Rating Statistics", "emblem
 }
 
 var config = new Configuration();
+var filesystem = new Filesystem();
 var playlistImporter = new PlaylistImporter();
 config.loadConfiguration();
 var cover_cache = new PixmapCache();
-var filesystem = new Filesystem();
 
 showWindowCallback();

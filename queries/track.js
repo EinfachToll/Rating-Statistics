@@ -27,9 +27,9 @@ function Track(filter, order)
 	};
 	
 	var html_replace = {
-    	icon_score     : "file://" + Amarok.Info.iconPath("love-amarok", 16),
-    	icon_playcount : "file://" + Amarok.Info.iconPath("amarok_playcount", 16),
-    	icon_length    : "file://" + Amarok.Info.iconPath("amarok_clock", 16),
+    	icon_score     : filesystem.icon_score,
+    	icon_playcount : filesystem.icon_playcount,
+    	icon_length    : filesystem.icon_length,
     	color_light    : qcolor_to_html(QApplication.palette().color(QPalette.Light)),
     	color_dark     : qcolor_to_html(QApplication.palette().color(QPalette.Dark)),
 	};

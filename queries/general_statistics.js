@@ -24,9 +24,9 @@ function GeneralStatistics(filter)
 	};
 	
 	var html_replace = {
-	    icon_collection : "file://" + Amarok.Info.scriptPath() + "/collectiongreen.png",
-	    icon_rate       : "file://" + Amarok.Info.scriptPath() + "/notegreen.png",
-	    icon_track      : "file://" + Amarok.Info.scriptPath() + "/halfstargreen.png",
+	    icon_collection : filesystem.icon_collection,
+	    icon_rate       : filesystem.icon_rate,
+	    icon_track      : filesystem.icon_track,
 	};
 	
 	var column_process = {

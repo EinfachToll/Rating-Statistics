@@ -97,7 +97,7 @@ DisplayResults.prototype.drawResults2 = function (scrollArea, result, indexGr, i
     };
     
     Amarok.debug(html);
-    scrollArea.setHtml(html, new QUrl(Amarok.Info.scriptPath().replace(/scripts\/rating_statistics/g, "")));
+    scrollArea.setHtml(html, new QUrl(filesystem.path_root));
     scrollArea.show();
 
     msg("Finished painting results...");

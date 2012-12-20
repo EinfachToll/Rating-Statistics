@@ -3,19 +3,9 @@ Importer.include("CoverCacheEntry.js");
 
 function PixmapCache() {
 
-    msg("Pixmap cache initializing...");
     this.album_cache   = {};
     this.artist_cache  = {};
-
-    this.amarokPath      = Amarok.Info.scriptPath().replace(/scripts\/rating_statistics/g, "");
-    this.coversCachePath = this.amarokPath + "/albumcovers/cache/";
-    this.coversLargePath = this.amarokPath + "/albumcovers/large/";
-    this.coversCache     = new QDir(this.coversCachePath);   
-    this.coversLarge     = new QDir(this.coversLargePath);
-    this.default_path    = "file://" + Amarok.Info.iconPath("filename-album-amarok", 96);    
-    this.default_cover   = new CoverCacheEntry(this.default_path, false, 96);
-
-    msg("Pixmap cache done");
+    this.default_cover   = new CoverCacheEntry(filesystem.icon_default_album, false, 96);
 }
 
 PixmapCache.prototype._fetch_cover = function(album_id) {
@@ -28,19 +18,19 @@ PixmapCache.prototype._fetch_cover = function(album_id) {
     	return this.default_cover; 								// manually unset cover
     } else if (path[0].substr(0, 18) == "amarok-sqltrackuid"){
         
-        var covers = this.coversLarge.entryList(new Array("*" + path[1] + "*"), QDir.Files, QDir.Size);
+        var covers = filesystem.dir_cover_large.entryList(new Array("*" + path[1] + "*"), QDir.Files, QDir.Size);
         if (covers.length == 0){
             // not found in albumcovers large folder, continue to cache
         } else {
-            return new CoverCacheEntry("file://" + this.coversLargePath + covers[0], true, CoverCacheEntry.extract_size(covers[0]));
+            return new CoverCacheEntry("file://" + filesystem.path_cover_large + covers[0], true, CoverCacheEntry.extract_size(covers[0]));
         }
         
         // check in cache folder
-    	var covers = this.coversCache.entryList(new Array("*" + path[1] + "*"), QDir.Files, QDir.Size);
+    	var covers = filesystem.dir_cover_cache.entryList(new Array("*" + path[1] + "*"), QDir.Files, QDir.Size);
         if (covers.length == 0){
         	return this.default_cover; 							// not found in albumcovers cache folder!
         } else {
-        	return new CoverCacheEntry("file://" + this.coversCachePath + covers[0], true, CoverCacheEntry.extract_size(covers[0]));
+        	return new CoverCacheEntry("file://" + filesystem.path_cover_cache + covers[0], true, CoverCacheEntry.extract_size(covers[0]));
         }
     } else {
     	return new CoverCacheEntry("file://" + path[0], false, 0);
@@ -55,7 +45,7 @@ PixmapCache.prototype.get_album_pixmap = function(album_id) {
     } else {
         Amarok.debug("key " + album_id + " NOT found in cache");
         cover = this._fetch_cover(album_id).path;
-        if (cover != this.default_path){
+        if (cover != filesystem.icon_default_album){
             this.album_cache[album_id] = cover;
         }
     }
@@ -88,7 +78,7 @@ PixmapCache.prototype.get_artist_pixmap = function(artist_id)
     	cover = this._fetch_cover(album_ids[0]).path;
     	Amarok.debug("I couldn't get a larger match; using: " + cover);
     } else {
-    	cover = this.default_path;
+    	cover = filesystem.icon_default_album;
     	Amarok.debug("I couldn't get any match; using default");
     }
     
