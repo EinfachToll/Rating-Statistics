@@ -1,0 +1,33 @@
+<style type="text/css">
+
+table.default_even {   
+    border     : 1px solid $color_dark$;
+    width      : 500;
+    background : -webkit-gradient(linear, right bottom, left bottom, from($color_mid$), to($color_button$))
+}
+
+table.default_odd {   
+    border     : 1px solid $color_dark$;
+    width      : 500;
+    background : -webkit-gradient(linear, left bottom, right bottom, from($color_mid$), to($color_button$))
+}
+
+table.default_even td {
+    width          : 120;
+    align          : center;
+    vertical-align : middle;
+    font-family    : $font_family$;
+    font-size      : $font_size$px;
+    color          : $font_color$;
+}
+
+table.default_odd td {
+    width          : 120;
+    align          : center;
+    vertical-align : middle;
+    font-family    : $font_family$;
+    font-size      : $font_size$px;
+    color          : $font_color$;
+}
+
+</style>

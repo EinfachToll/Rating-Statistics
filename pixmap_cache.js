@@ -1,4 +1,3 @@
-Importer.include("md5.js");
 Importer.include("queries.js");
 Importer.include("CoverCacheEntry.js");
 
@@ -21,15 +20,15 @@ function PixmapCache() {
 
 PixmapCache.prototype._fetch_cover = function(album_id) {
 
-    var path = "" + sql_exec("select path from albums b join images i on b.image = i.id where b.id = " + album_id);
+    var path = sql_exec("select path, md5(path) from albums b join images i on b.image = i.id where b.id = " + album_id);
 
     if (path == "") {
     	return this.default_cover; 								// cover not set
-    } else if (path == "AMAROK_UNSET_MAGIC") {
+    } else if (path[0] == "AMAROK_UNSET_MAGIC") {
     	return this.default_cover; 								// manually unset cover
-    } else if (path.substr(0, 18) == "amarok-sqltrackuid"){
+    } else if (path[0].substr(0, 18) == "amarok-sqltrackuid"){
         
-        var covers = this.coversLarge.entryList(new Array("*" + MD5(path) + "*"), QDir.Files, QDir.Size); //TODO: drop md5.js dependancy
+        var covers = this.coversLarge.entryList(new Array("*" + path[1] + "*"), QDir.Files, QDir.Size);
         if (covers.length == 0){
             // not found in albumcovers large folder, continue to cache
         } else {
@@ -37,14 +36,14 @@ PixmapCache.prototype._fetch_cover = function(album_id) {
         }
         
         // check in cache folder
-    	var covers = this.coversCache.entryList(new Array("*" + MD5(path) + "*"), QDir.Files, QDir.Size); //TODO: drop md5.js dependancy
+    	var covers = this.coversCache.entryList(new Array("*" + path[1] + "*"), QDir.Files, QDir.Size);
         if (covers.length == 0){
         	return this.default_cover; 							// not found in albumcovers cache folder!
         } else {
         	return new CoverCacheEntry("file://" + this.coversCachePath + covers[0], true, CoverCacheEntry.extract_size(covers[0]));
         }
     } else {
-    	return new CoverCacheEntry("file://" + path, false, 0);
+    	return new CoverCacheEntry("file://" + path[0], false, 0);
     }
 };
 
