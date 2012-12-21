@@ -8,6 +8,7 @@ Importer.include("queries/album_artist.js");
 Importer.include("queries/album.js");
 Importer.include("queries/artists.js");
 Importer.include("queries/track.js");
+Importer.include("queries/graph_years.js");
 
 Importer.include("QueryManager.js");
 
@@ -105,6 +106,7 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.scrollAreaData.backgroundBrush = new QBrush(QApplication.palette().color(QPalette.Button), Qt.SolidPattern);
     
 	this.htmlArea = new QWebView(parentWidget);
+	this.htmlArea.maximumWidth = 540;
 
 	this.comboGroupBy.addItem(icon_statistics,	qsTr("Statistics"));
 	this.comboGroupBy.addItem(icon_track,		qsTr("Tracks"));
@@ -251,14 +253,15 @@ FavouritesTab.prototype.onTypeChanged = function()
 		if (indexGr == 6)
 			this.displayResults(fillLabelsPage(this.filterBox.text, indexOrd), indexOrd);
 	
-	    if (indexGr == 7)
-	        this.displayGraph(fillYearGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
-	
-	    if (indexGr == 8)
-	        this.displayGraph(fillDecadeGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
-	
-	    if (indexGr == 9)
-	        this.displayGraph(fillRatingGraph(this.filterBox.text, indexOrd), indexOrd, indexGr);
+	    if (indexGr == 7){
+            var result = new GraphYears(playlistImporter.createFilterString(this.filterBox.text), indexOrd);
+            Amarok.debug(result);
+            this.displayGraph(result, indexOrd, indexGr);
+        }
+	    if (indexGr == 8){
+	    }
+	    if (indexGr == 9){
+	    }
     } catch (e){
     	Amarok.debug(e);
     }
@@ -303,17 +306,17 @@ FavouritesTab.prototype.displayResults = function(result, indexOrd)
     this.Results_Painter.drawResults2(this.htmlArea, result, indexGr, indexOrd);
 };
 
-FavouritesTab.prototype.displayGraph = function(query_string, orderby, groupby)
+FavouritesTab.prototype.displayGraph = function(result, orderby, groupby)
 {
     msg("Painting graph...");
 
-    currentQuery = sql_exec(query_string);
+//    currentQuery = sql_exec(query_string);
+//
+//    if (currentQuery.length == 0){
+//        this.resultsShowNone();
+//        msg("Finished painting graph (none)...");
+//        return;
+//    }
 
-    if (currentQuery.length == 0){
-        this.resultsShowNone();
-        msg("Finished painting graph (none)...");
-        return;
-    }
-
-    this.graphPainter.drawGraph(this.scrollAreaData, currentQuery, orderby, groupby);
+    this.graphPainter.drawGraph2(this.htmlArea, result, orderby, groupby);
 };

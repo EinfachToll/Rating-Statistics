@@ -96,7 +96,7 @@ DisplayResults.prototype.drawResults2 = function (scrollArea, result, indexGr, i
         html += result.get_html();
     };
     
-    Amarok.debug(html);
+    //Amarok.debug(html);
     scrollArea.setHtml(html, new QUrl(filesystem.path_root));
     scrollArea.show();
 

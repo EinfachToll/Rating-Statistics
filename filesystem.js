@@ -19,6 +19,9 @@ function Filesystem(displayCommon)
     this.icon_rate           = "file://" + Amarok.Info.scriptPath() + "/notegreen.png";
     this.icon_track          = "file://" + Amarok.Info.scriptPath() + "/halfstargreen.png";
     
+    this.js_jquery           = "/flot/jquery-1.6.3.js"; // FIXME cache
+    this.js_flot             = "/flot/jquery.flot.js"; // FIXME cache
+    
     this.dir_cover_cache     = new QDir(this.path_cover_cache);   
     this.dir_cover_large     = new QDir(this.path_cover_large);
 };
