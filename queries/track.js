@@ -20,7 +20,6 @@ function Track(filter, order)
 	];
 	
 	var sql_replace = {
-	    __WEIGHT__ : createWeightString(1),
 	    __FILTER__ : filter,
 	    __ORDER__  : createOrderString(1, order),
 	    __LIMIT__  : config.resultsLimit,

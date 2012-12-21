@@ -13,7 +13,6 @@ function GraphYears(filter, order)
 	];
 	
 	var sql_replace = {
-    	__WEIGHT__ : createWeightString(2),
     	__FILTER__ : filter,
     	__ORDER__  : createOrderString(2, order),
 	};

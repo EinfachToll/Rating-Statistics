@@ -1,7 +1,6 @@
 Importer.include("configuration.js");
 Importer.include("queries.js");
 Importer.include("display_results.js");
-Importer.include("display_statistics.js");
 Importer.include("display_graph.js");
 Importer.include("queries/general_statistics.js");
 Importer.include("queries/album_artist.js");
@@ -12,7 +11,6 @@ Importer.include("queries/graph_years.js");
 
 Importer.include("QueryManager.js");
 
-var currentQuery = new Array();
 var indexGr = 0;
 var indexOrd = 0;
 
@@ -34,48 +32,40 @@ var icon_label			= new QIcon(Amarok.Info.iconPath( "label-amarok", 16));
 var icon_decade			= new QIcon(Amarok.Info.iconPath( "upcomingevents-amarok", 16));
 
 
-function CustomQGraphicsScene() {
-    CustomQGraphicsScene.superclass.call(this);
-    msg("CustomQGraphicsScene constructed");
-}
+//CustomQGraphicsScene.prototype.mouseDoubleClickEvent = function(event)
+//{
+//	if(indexGr <= 6)
+//	{
+//		var item_index = Math.floor((event.scenePos().y() - 5)/(96+5));
+//		var id = currentQuery[item_index * 11];
+//		if (id == null) return;
+//		if (indexGr == 1) playlistImporter.addTrack(id);
+//		if (indexGr == 2) playlistImporter.addArtist(id);
+//		if (indexGr == 3) playlistImporter.addAlbumArtist(id);
+//		if (indexGr == 4) playlistImporter.addAlbum(id);
+//		if (indexGr == 5) playlistImporter.addGenre(id);
+//		if (indexGr == 6) playlistImporter.addLabel(id);
+//	} else
+//	{
+//		var imax = indexGr <= 8 ? parseInt(currentQuery[currentQuery.length - 2]) : 10;
+//		var imin = indexGr <= 8 ? parseInt(currentQuery[1]) : 0;
+//		var cliI = Math.floor((event.scenePos().x() - 10) * (imax-imin) / (this.width()-20)) + imin;
+//		var selI = imin;
+//		for(var i=0; i<currentQuery.length; i+=3)
+//		{
+//			if(parseInt(currentQuery[i+1]) <= cliI) selI = currentQuery[i];
+//			else break;
+//		}
+//		if (indexGr == 7) playlistImporter.addYear(selI);
+//		if (indexGr == 8) playlistImporter.addDecade(selI);
+//		if (indexGr == 9) playlistImporter.addRating(selI);
+//	}
+//};
 
-extend(CustomQGraphicsScene, QGraphicsScene);
-
-CustomQGraphicsScene.prototype.mouseDoubleClickEvent = function(event)
+function FavouritesTab()
 {
-	if(indexGr <= 6)
-	{
-		var item_index = Math.floor((event.scenePos().y() - 5)/(96+5));
-		var id = currentQuery[item_index * 11];
-		if (id == null) return;
-		if (indexGr == 1) playlistImporter.addTrack(id);
-		if (indexGr == 2) playlistImporter.addArtist(id);
-		if (indexGr == 3) playlistImporter.addAlbumArtist(id);
-		if (indexGr == 4) playlistImporter.addAlbum(id);
-		if (indexGr == 5) playlistImporter.addGenre(id);
-		if (indexGr == 6) playlistImporter.addLabel(id);
-	} else
-	{
-		var imax = indexGr <= 8 ? parseInt(currentQuery[currentQuery.length - 2]) : 10;
-		var imin = indexGr <= 8 ? parseInt(currentQuery[1]) : 0;
-		var cliI = Math.floor((event.scenePos().x() - 10) * (imax-imin) / (this.width()-20)) + imin;
-		var selI = imin;
-		for(var i=0; i<currentQuery.length; i+=3)
-		{
-			if(parseInt(currentQuery[i+1]) <= cliI) selI = currentQuery[i];
-			else break;
-		}
-		if (indexGr == 7) playlistImporter.addYear(selI);
-		if (indexGr == 8) playlistImporter.addDecade(selI);
-		if (indexGr == 9) playlistImporter.addRating(selI);
-	}
-};
-
-function FavouritesTab(displayCommon)
-{
-    this.statisticsPainter = new StatisticsPainter(displayCommon);
-    this.Results_Painter   = new DisplayResults(displayCommon);
-    this.graphPainter      = new GraphPainter(displayCommon);
+    this.Results_Painter   = new DisplayResults();
+    this.graphPainter      = new GraphPainter();
 
     this.mutex             = new QMutex(1);
     this.queryManager      = new QueryManager();
@@ -99,12 +89,7 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.filterBox				= new QLineEdit(parentWidget);
     this.comboGroupBy			= new QComboBox(parentWidget);
 	this.comboOrderBy			= new QComboBox(parentWidget);
-
-    this.scrollAreaData     = new CustomQGraphicsScene(0, 0, 350, 50, parentWidget);
-    this.scrollAreaResults  = new QGraphicsView(this.scrollAreaData, parentWidget);
-	this.scrollAreaResults.alignment = Qt.AlignHCenter;
-    this.scrollAreaData.backgroundBrush = new QBrush(QApplication.palette().color(QPalette.Button), Qt.SolidPattern);
-    
+   
 	this.htmlArea = new QWebView(parentWidget);
 	this.htmlArea.maximumWidth = 540;
 
@@ -138,8 +123,6 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.groupLayoutResults.addWidget(this.htmlArea, 0, 0);
     this.groupLayoutResults.addWidget(this.scrollAreaResults, 0, 1);
     
-    this.scrollAreaResults.hide();
-
 	this.groupBoxSearch.flat = true;
 	this.groupBoxResults.flat = true;
     this.groupBoxSearch.setLayout(this.groupLayoutSearch);
@@ -152,7 +135,6 @@ FavouritesTab.prototype.draw = function(parentWidget)
     this.filterBox.returnPressed.connect( this, this.onQuerySubmitted);
 
     this.filterBox.toolTip  = qsTr("Filter by artist, album, album artist, genre, label or year. Year ranges work, too.");
-	this.resultsAreaToolTip = qsTr("You can double-click on this items to queue the tracks to your playlist.");
 
     this.onGroupChanged();
 };
@@ -162,18 +144,6 @@ FavouritesTab.prototype.closeEvent = function(CloseEvent)
     msg("Close event received on FavouritesTab");
 };
 
-FavouritesTab.prototype.resultsShowNone = function()
-{
-    this.scrollAreaData.clear();
-    this.scrollAreaData.sceneRect = new QRectF(0,0,1,1);
-};
-
-FavouritesTab.prototype.resultsShowWorking = function()
-{
-    this.scrollAreaData.clear();
-    this.scrollAreaData.sceneRect = new QRectF(0,0,1,1);
-};
-
 FavouritesTab.prototype.onQuerySubmitted = function()
 {
     msg("Query Submitted");
@@ -181,32 +151,12 @@ FavouritesTab.prototype.onQuerySubmitted = function()
 };
 
 FavouritesTab.prototype.onGroupChanged = function(index)
-{
-	if(index > 0)
-		this.scrollAreaResults.toolTip = this.resultsAreaToolTip;
-	else
-		this.scrollAreaResults.toolTip = "";
-
-	//if(index==7 && indexOrd==7)
-		//this.comboOrderBy.setCurrentIndex(0);
-	if(index==9 && indexOrd==0)
-		this.comboOrderBy.setCurrentIndex(5);
-	//if(index==1 && (indexOrd==5 || indexOrd==6))
-		//this.comboOrderBy.setCurrentIndex(0);
-		
+{	
 	this.onTypeChanged();
 };
 
 FavouritesTab.prototype.onOrderChanged = function(index)
 {
-	/*
-	if(index==7 && indexGr==7)
-		this.comboGroupBy.setCurrentIndex(1);
-	if(index==0 && indexGr==8)
-		this.comboGroupBy.setCurrentIndex(1);
-	if((index==5 || index==6) && indexGr==1)
-		this.comboGroupBy.setCurrentIndex(2);
-		*/
 	this.onTypeChanged();
 };
 
@@ -215,12 +165,11 @@ FavouritesTab.prototype.onTypeChanged = function()
 	playlistImporter.filterText = this.filterBox.text;
 	indexGr  = this.comboGroupBy.currentIndex;
 	indexOrd = this.comboOrderBy.currentIndex;
+	
     msg("Query Type changed to " + indexGr + ", " + indexOrd);
     if (this.mutex.tryLock(0) == false) return;
 
-    try{
-	    this.resultsShowWorking();
-	    
+    try{    
 	    this.queryManager.create_tracks_table(this.filterBox.text);
 	
 	    if (indexGr == 0){
@@ -243,19 +192,14 @@ FavouritesTab.prototype.onTypeChanged = function()
 		}
 	    if (indexGr == 4){
 	    	var result = new Album(playlistImporter.createFilterString(this.filterBox.text), indexOrd);
-	        //var result = fillAlbumsPage(this.filterBox.text, indexOrd);
-	        //msg(result);
 	        this.displayResults(result, indexOrd);
 	    }
-	    if (indexGr == 5)
-	        this.displayResults(fillGenresPage(this.filterBox.text, indexOrd), indexOrd);
-	
-		if (indexGr == 6)
-			this.displayResults(fillLabelsPage(this.filterBox.text, indexOrd), indexOrd);
-	
+	    if (indexGr == 5){
+	    }
+		if (indexGr == 6){
+		}	
 	    if (indexGr == 7){
             var result = new GraphYears(playlistImporter.createFilterString(this.filterBox.text), indexOrd);
-            Amarok.debug(result);
             this.displayGraph(result, indexOrd, indexGr);
         }
 	    if (indexGr == 8){
@@ -269,54 +213,21 @@ FavouritesTab.prototype.onTypeChanged = function()
     this.mutex.unlock();
 };
 
-//FavouritesTab.prototype.displayStatistics = function(query_string)
-//{
-//    msg("Painting statistics...");
-//
-//    currentQuery = sql_exec(query_string);
-//
-//    if (currentQuery.length == 0){
-//        this.resultsShowNone();
-//        msg("Got no statistics!!");
-//        return;
-//    }
-//
-//    this.statisticsPainter.drawStatistics2(this.htmlArea, currentQuery);
-//};
-
 FavouritesTab.prototype.displayStatistics = function(query_string)
 {
     msg("Painting statistics...");
-
-    currentQuery = new GeneralStatistics(playlistImporter.createFilterString(query_string));
-
-    this.Results_Painter.drawResults2(this.htmlArea, currentQuery, 0, 0);
+    var result = new GeneralStatistics(playlistImporter.createFilterString(query_string));
+    this.Results_Painter.drawResults2(this.htmlArea, result, 0, 0);
 };
 
 FavouritesTab.prototype.displayResults = function(result, indexOrd)
 {
     msg("Painting results...");
-    
-//    if (result.size() == 0){
-//        this.resultsShowNone();
-//        msg("Finished painting results (none)...");
-//        return;
-//    }
-
     this.Results_Painter.drawResults2(this.htmlArea, result, indexGr, indexOrd);
 };
 
 FavouritesTab.prototype.displayGraph = function(result, orderby, groupby)
 {
     msg("Painting graph...");
-
-//    currentQuery = sql_exec(query_string);
-//
-//    if (currentQuery.length == 0){
-//        this.resultsShowNone();
-//        msg("Finished painting graph (none)...");
-//        return;
-//    }
-
     this.graphPainter.drawGraph2(this.htmlArea, result, orderby, groupby);
 };

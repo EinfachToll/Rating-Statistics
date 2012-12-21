@@ -1,5 +1,4 @@
 Importer.include("favourites.js");
-Importer.include("display_common.js");
 Importer.include("pixmap_cache.js");
 
 function StatisticsWindow()
@@ -10,8 +9,7 @@ function StatisticsWindow()
     this.mainTabWidget       = new QTabWidget();
     this.favouritesWidget    = new QWidget();
     this.configurationWidget = new QWidget();
-    this.displayCommon       = new DisplayCommon();
-    this.favouritesTab       = new FavouritesTab(this.displayCommon);
+    this.favouritesTab       = new FavouritesTab();
          
     config.draw(this.configurationWidget);
     config.showConfiguration();
@@ -40,14 +38,5 @@ StatisticsWindow.prototype.closeEvent = function(CloseEvent)
     for (var i=0; i<2; i++){ tabWidget.removeTab(0); }
     CloseEvent.accept();
     msg("Closing");
-};
-
-StatisticsWindow.prototype.resizeEvent = function(ResizeEvent)
-{
-//    msg("resizing...");
-//    this.displayCommon.changeFrameWidth(ResizeEvent.size().width() - 64);
-//    msg("graph painter");
-//    this.favouritesTab.graphPainter = new GraphPainter(this.displayCommon);
-//    this.favouritesTab.onQuerySubmitted();
 };
 

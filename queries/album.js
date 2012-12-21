@@ -18,9 +18,8 @@ function Album(filter, order) {
     ];
 
     var sql_replace = {
-        __WEIGHT__ : createWeightString(4),
         __FILTER__ : filter,
-        __ORDER__  : createOrderString(4, order),
+        __ORDER__  : createOrderString(4, order), // FIXME
         __LIMIT__  : config.resultsLimit,
     };
 
