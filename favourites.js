@@ -24,6 +24,7 @@ var icon_numtracks		= new QIcon(Amarok.Info.iconPath( "amarok_track", 16));
 var icon_numalbums		= new QIcon(Amarok.Info.iconPath( "filename-track-amarok", 16));
 var icon_label			= new QIcon(Amarok.Info.iconPath( "label-amarok", 16));
 var icon_decade			= new QIcon(Amarok.Info.iconPath( "upcomingevents-amarok", 16));
+var icon_name			= new QIcon(Amarok.Info.iconPath( "amarok_change_language", 16));
 
 
 
@@ -125,6 +126,7 @@ FavouritesTab.prototype.draw = function(parentWidget)
 	this.comboOrderBy.addItem(icon_numtracks,	qsTr("Number of Tracks"));
 	this.comboOrderBy.addItem(icon_numalbums,	qsTr("Number of Albums"));
 	this.comboOrderBy.addItem(icon_year,		qsTr("Year"));
+	this.comboOrderBy.addItem(icon_name,		qsTr("Name"));
 
     this.groupLayoutSearch.addWidget(this.filterLabel,		0, 0, 1, 1, Qt.AlignRight);
     this.groupLayoutSearch.addWidget(this.filterBox,		0, 1, 1, 5);

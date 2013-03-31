@@ -65,7 +65,13 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
     msg("Drawing results");
 
 	var amarokPath = Amarok.Info.scriptPath().replace(/scripts\/rating_statistics/g, "");
-    var maxWeight = config.reverseResults == Qt.Unchecked ? query[indexOrd + 3] : query[query.length + indexOrd - 8];
+
+    var maxWeight = 1;
+	if(indexOrd <= 7)
+		if(config.reverseResults == Qt.Unchecked)
+			maxWeight = query[indexOrd + 3];
+		else
+			maxWeight = query[query.length + indexOrd - 8];
 
     for( var i = 0; i < query.length; i += 11)
     {
@@ -89,7 +95,7 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
 		else
 			imagePath = amarokPath + "albumcovers/large/" + MD5(query[i+1]);
 
-        var weight = query[i+indexOrd+3];
+        var weight = (indexOrd <= 7 ? query[i+indexOrd+3] : 1);
 
         var len_hour = Math.floor(query[i+7]/3600000);
         var len_min  = Math.floor((query[i+7]/1000 - len_hour*3600)/60);
