@@ -86,8 +86,8 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd, indexGr
 		} else
 			txt = new QGraphicsSimpleTextItem(query[i], poly);
 
-		var toolTip = query[i+1];
-		if(indexOrd == 4)
+		var toolTip = "";
+		if(indexOrd == 4)	//if we order by length, format the time
 		{
 			var time = new Date(0);
 			time.setMilliseconds(parseInt(query[i+1]));
@@ -95,6 +95,14 @@ GraphPainter.prototype.drawGraph = function(scrollArea, query, indexOrd, indexGr
 			var min = time.getMinutes();
 			var sec = time.getSeconds();
 			toolTip = (hours > 0 ? hours + ":" : "") + (min < 10 ? "0" : "") + min + ":" + (sec <10 ? "0" : "") + sec;
+		}
+		else if(indexOrd == 0)	//if we order by rating, divide it by 2
+		{
+			toolTip = query[i+1] * 0.5;
+		}
+		else
+		{
+			toolTip = query[i+1];
 		}
 		txt.setToolTip(toolTip);
         txt.moveBy(point_x - 3, this.graph_y + this.graph_height);
