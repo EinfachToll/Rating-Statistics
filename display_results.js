@@ -85,7 +85,7 @@ DisplayResults.prototype.drawResults = function (scrollArea, query, indexGr, ind
 			imagePath = query[i+1];
 		else
 		if(query[i+1] == "label")
-			imagePath = Amarok.Info.iconPath("label-amarok", 64);
+			imagePath = Amarok.Info.scriptPath() + "/labels_icon.png"
 		else
 		if(query[i+1] == "genre")
 			imagePath = Amarok.Info.iconPath("filename-genre-amarok", 64);
