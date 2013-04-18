@@ -40,8 +40,6 @@ function showWindowCallback() {
     var stWindow   = new StatisticsWindow();
     stWindow.show();
     
-    msg("Removing translator");
-    QCoreApplication.removeTranslator(this.trans);
     msg("done");
 }
 
