@@ -11,16 +11,16 @@ function StatisticsWindow()
     this.configurationWidget = new QWidget();
     this.displayCommon       = new DisplayCommon();
     this.favouritesTab       = new FavouritesTab(this.displayCommon);
-         
+
     config.draw(this.configurationWidget);
     config.showConfiguration();
     this.favouritesTab.draw(this.favouritesWidget);
 
-	this.mainTabWidget.documentMode = true;
+    this.mainTabWidget.documentMode = true;
     this.mainTabWidget.addTab(this.favouritesWidget, qsTr("Favourites"));
     this.mainTabWidget.addTab(this.configurationWidget, qsTr("Configuration"));
 
-	config.buttonBox.clicked.connect(this,this.applyPressed);
+    config.buttonBox.clicked.connect(this,this.applyPressed);
 
     this.setCentralWidget(this.mainTabWidget);
 }
@@ -29,9 +29,9 @@ StatisticsWindow.prototype = new QMainWindow();
 
 StatisticsWindow.prototype.applyPressed = function()
 {
-	config.onConfigurationApply();
-	this.mainTabWidget.setCurrentIndex(0);
-	this.favouritesTab.onQuerySubmitted();
+    config.onConfigurationApply();
+    this.mainTabWidget.setCurrentIndex(0);
+    this.favouritesTab.onQuerySubmitted();
 }
 
 StatisticsWindow.prototype.closeEvent = function(CloseEvent)

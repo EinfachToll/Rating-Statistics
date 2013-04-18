@@ -11,10 +11,10 @@ function msg( str ){
 }
 
 function sql_exec(query){
-	msg("[SQL] " + query);
-	var res = Amarok.Collection.query(query);
-	msg(res);
-	return res;
+    msg("[SQL] " + query);
+    var res = Amarok.Collection.query(query);
+    msg(res);
+    return res;
 }
 
 function qsTr(msg){
@@ -29,17 +29,17 @@ function quit(){
 }
 
 function showWindowCallback() {
-	msg("Creating new translator");
-	this.trans = new QTranslator;
-	var localeFile = Amarok.Info.scriptPath() + "/translations/qm/amarok_rating_statistics_" + QLocale.system().name() + ".qm";
-	msg("locale File: " + localeFile);
-	msg(this.trans.load(localeFile));
-	QCoreApplication.installTranslator(this.trans);
-	
+    msg("Creating new translator");
+    this.trans = new QTranslator;
+    var localeFile = Amarok.Info.scriptPath() + "/translations/qm/amarok_rating_statistics_" + QLocale.system().name() + ".qm";
+    msg("locale File: " + localeFile);
+    msg(this.trans.load(localeFile));
+    QCoreApplication.installTranslator(this.trans);
+
     msg("Showing main window...");
     var stWindow   = new StatisticsWindow();
     stWindow.show();
-    
+
     msg("done");
 }
 

@@ -17,13 +17,13 @@ StatisticsPainter.prototype.drawStatistics = function(scrollArea, query)
     this.common.addSimpleText(frame_counts, qsTr("tracks: ") + query[0], this.common.font_bold_height, false);
     this.common.addSimpleText(frame_counts, qsTr("albums: ") + query[1], this.common.font_bold_height + this.common.font_height, false);
     this.common.addSimpleText(frame_counts, qsTr("artists: ") + query[2], this.common.font_bold_height + 2 * this.common.font_height, false);
-	var len_day  = Math.floor(query[3]/86400000);
-	query[3] = query[3] % 86400000;
+    var len_day  = Math.floor(query[3]/86400000);
+    query[3] = query[3] % 86400000;
     var len_hour = Math.floor(query[3]/3600000);
     var len_min  = Math.floor((query[3]/1000 - len_hour*3600)/60);
     var len_sec  = Math.floor((query[3]/1000)%60);
     var len_txt  = (len_day > 0 ? len_day + "d " : "") + (len_hour > 0 ? len_hour + "h " : "") + len_min + "m " + len_sec + "s";
-	this.common.addSimpleText(frame_counts, qsTr("Total length: ") + len_txt, this.common.font_bold_height + 3 * this.common.font_height, false);
+    this.common.addSimpleText(frame_counts, qsTr("Total length: ") + len_txt, this.common.font_bold_height + 3 * this.common.font_height, false);
 
     var frame_rating = this.common.drawFrame(scrollArea, 1);
     this.common.addAlbumCover(frame_rating, this.icon_tracks);
@@ -41,7 +41,7 @@ StatisticsPainter.prototype.drawStatistics = function(scrollArea, query)
     var len_min  = Math.floor((query[12]/1000 - len_hour*3600)/60);
     var len_sec  = Math.floor((query[12]/1000)%60);
     var len_txt  = (len_hour > 0)
-                    ? len_hour + "h " + len_min + "m " + len_sec + "s"
-                    : len_min + "m " + len_sec + "s";
+        ? len_hour + "h " + len_min + "m " + len_sec + "s"
+        : len_min + "m " + len_sec + "s";
     this.common.addSimpleText(frame_average, qsTr("average length: ") + len_txt, this.common.font_bold_height + 2 * this.common.font_height, false);
 }

@@ -42,14 +42,14 @@ Configuration.prototype.saveConfiguration = function()
 {
     msg("Saving Configuration....");
 
-    this.saveCheckBox("ignore_unrated",			this.skipUnrated);
-    this.saveConfig("min_tracks_per_album",		this.minTracksPerAlbum);
-    this.saveConfig("results_limit",			this.resultsLimit);
-    this.saveCheckBox("reverse_results",		this.reverseResults);
-    this.saveConfig("weight_rating",			this.weightRating);
-    this.saveConfig("weight_score",				this.weightScore);
-    this.saveConfig("weight_length",			this.weightLength);
-    this.saveConfig("weight_playcount",			this.weightPlaycount);
+    this.saveCheckBox("ignore_unrated",         this.skipUnrated);
+    this.saveConfig("min_tracks_per_album",     this.minTracksPerAlbum);
+    this.saveConfig("results_limit",            this.resultsLimit);
+    this.saveCheckBox("reverse_results",        this.reverseResults);
+    this.saveConfig("weight_rating",            this.weightRating);
+    this.saveConfig("weight_score",             this.weightScore);
+    this.saveConfig("weight_length",            this.weightLength);
+    this.saveConfig("weight_playcount",         this.weightPlaycount);
     msg("done");
 }
 
@@ -66,15 +66,15 @@ Configuration.prototype.loadConfiguration = function()
 
     msg("loadConfiguration");
 
-    this.skipUnrated		= this.loadCheckBox('ignore_unrated',		Qt.Checked);
-    this.reverseResults		= this.loadCheckBox('reverse_results',		Qt.Unchecked);
-    this.minTracksPerAlbum	= this.loadConfig('min_tracks_per_album',	3);
-    this.resultsLimit		= this.loadConfig('results_limit',			15);
-    this.weightRating		= this.loadConfig('weight_rating',			2);
-    this.weightScore		= this.loadConfig('weight_score',			2);
-    this.weightLength		= this.loadConfig('weight_length',			1);
-    this.weightPlaycount	= this.loadConfig('weight_playcount',		2);
-    
+    this.skipUnrated        = this.loadCheckBox('ignore_unrated',       Qt.Checked);
+    this.reverseResults     = this.loadCheckBox('reverse_results',      Qt.Unchecked);
+    this.minTracksPerAlbum  = this.loadConfig('min_tracks_per_album',   3);
+    this.resultsLimit       = this.loadConfig('results_limit',          15);
+    this.weightRating       = this.loadConfig('weight_rating',          2);
+    this.weightScore        = this.loadConfig('weight_score',           2);
+    this.weightLength       = this.loadConfig('weight_length',          1);
+    this.weightPlaycount    = this.loadConfig('weight_playcount',       2);
+
     msg("done");
 }
 
@@ -105,7 +105,7 @@ Configuration.prototype.showConfiguration = function()
     this.sliderWeightScore.setValue(this.weightScore);
     this.sliderWeightLength.setValue(this.weightLength);
     this.sliderWeightPlaycount.setValue(this.weightPlaycount);
-    
+
     msg("done");
 }
 
@@ -116,7 +116,7 @@ Configuration.prototype.draw = function(parentWidget)
 
     this.groupBoxResults             = new QGroupBox(qsTr("Results"));
     this.groupBoxOrdering            = new QGroupBox(qsTr("User-specific weight"));
-    this.buttonBox					 = new QDialogButtonBox(parentWidget);
+    this.buttonBox                   = new QDialogButtonBox(parentWidget);
 
     this.groupLayoutResults          = new QGridLayout();
     this.groupLayoutOrdering         = new QGridLayout();
@@ -142,7 +142,7 @@ Configuration.prototype.draw = function(parentWidget)
     this.sliderWeightPlaycount.setRange(0,3);
     this.spinResultsLimit.setRange(1,100);
     this.spinMinTracksPerAlbum.setRange(1,100);
-    
+
     this.groupLayoutResults.addWidget(this.labelReverseResults,        0, 0);
     this.groupLayoutResults.addWidget(this.checkReverseResults,        0, 1);
     this.groupLayoutResults.addWidget(this.labelResultsLimit,          1, 0);
@@ -157,39 +157,39 @@ Configuration.prototype.draw = function(parentWidget)
     this.groupLayoutOrdering.addWidget(this.sliderWeightPlaycount,     2, 1);
     this.groupLayoutOrdering.addWidget(this.labelWeightLength,         3, 0);
     this.groupLayoutOrdering.addWidget(this.sliderWeightLength,        3, 1);
-	this.buttonBox.addButton(QDialogButtonBox.Apply);
+    this.buttonBox.addButton(QDialogButtonBox.Apply);
 
     this.groupBoxResults.setLayout(this.groupLayoutResults);
     this.groupBoxOrdering.setLayout(this.groupLayoutOrdering);
 
-    this.mainLayout.addWidget(this.groupBoxResults,		0, 0);
-    this.mainLayout.addWidget(this.groupBoxOrdering,	1, 0);
-    this.mainLayout.addWidget(this.buttonBox,			2, 0);
+    this.mainLayout.addWidget(this.groupBoxResults,     0, 0);
+    this.mainLayout.addWidget(this.groupBoxOrdering,    1, 0);
+    this.mainLayout.addWidget(this.buttonBox,           2, 0);
 
     this.spinMinTracksPerAlbum.toolTip  = qsTr("Where this setting makes sense, just albums/genres/etc. with that many tracks are shown, and with that many rated tracks, respectively.\nA value of 1 is equivalent to disabling this feature.");
-	this.labelMinTracksPerAlbum.toolTip = this.spinMinTracksPerAlbum.toolTip;
+    this.labelMinTracksPerAlbum.toolTip = this.spinMinTracksPerAlbum.toolTip;
 
-    this.spinResultsLimit.toolTip      = qsTr("Sets an upper limit on the number of results displayed. A lot of results might take a while to render.");
-	this.labelResultsLimit.toolTip     = this.spinResultsLimit.toolTip;
+    this.spinResultsLimit.toolTip       = qsTr("Sets an upper limit on the number of results displayed. A lot of results might take a while to render.");
+    this.labelResultsLimit.toolTip      = this.spinResultsLimit.toolTip;
 
-    this.checkReverseResults.toolTip   = qsTr("If set, the results are ranked from worst to best.");
-	this.labelReverseResults.toolTip   = this.checkReverseResults.toolTip;
+    this.checkReverseResults.toolTip    = qsTr("If set, the results are ranked from worst to best.");
+    this.labelReverseResults.toolTip    = this.checkReverseResults.toolTip;
 
-    this.sliderWeightLength.toolTip    = qsTr("Sets the importance of an entry's length for ranking purposes.\n"
-                                       + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
-	this.labelWeightLength.toolTip	= this.sliderWeightLength.toolTip;
+    this.sliderWeightLength.toolTip     = qsTr("Sets the importance of an entry's length for ranking purposes.\n"
+            + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
+    this.labelWeightLength.toolTip      = this.sliderWeightLength.toolTip;
 
-    this.sliderWeightPlaycount.toolTip = qsTr("Sets the importance of an entry's playcount for ranking purposes.\n"
-                                       + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
-	this.labelWeightPlaycount.toolTip = this.sliderWeightPlaycount.toolTip;
+    this.sliderWeightPlaycount.toolTip  = qsTr("Sets the importance of an entry's playcount for ranking purposes.\n"
+            + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
+    this.labelWeightPlaycount.toolTip   = this.sliderWeightPlaycount.toolTip;
 
-    this.sliderWeightRating.toolTip    = qsTr("Sets the importance of an entry's rating for ranking purposes.\n"
-                                       + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
-	this.labelWeightRating.toolTip = this.sliderWeightRating.toolTip;
+    this.sliderWeightRating.toolTip     = qsTr("Sets the importance of an entry's rating for ranking purposes.\n"
+            + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
+    this.labelWeightRating.toolTip      = this.sliderWeightRating.toolTip;
 
-    this.sliderWeightScore.toolTip     = qsTr("Sets the importance of an entry's score for ranking purposes.\n"
-                                       + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
-	this.labelWeightScore.toolTip = this.sliderWeightScore.toolTip;
+    this.sliderWeightScore.toolTip      = qsTr("Sets the importance of an entry's score for ranking purposes.\n"
+            + "The settings are from left to right: Disabled, 50%, 100%, 150%.");
+    this.labelWeightScore.toolTip       = this.sliderWeightScore.toolTip;
 
     msg("Finished drawing configuration tab...");
 }

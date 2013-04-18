@@ -24,7 +24,7 @@ function DisplayCommon()
     this.weightIndicator_thickness  = 1;
     this.weightIndicator_y          = this.frame_y - this.albumCover_y - (3 * this.albumCover_spacing);
     // Colors
-	this.color_light                = QApplication.palette().color(QPalette.Light);
+    this.color_light                = QApplication.palette().color(QPalette.Light);
     this.color_mid                  = QApplication.palette().color(QPalette.Mid);
     this.color_button               = QApplication.palette().color(QPalette.Button);
     this.color_dark                 = QApplication.palette().color(QPalette.Dark);
@@ -86,22 +86,22 @@ DisplayCommon.prototype.addAlbumCover = function(frame, image_filepath)
 
 DisplayCommon.prototype.addWeightRating = function(frame, weight, max_weight)
 {
-	if(max_weight == 0) max_weight = 1;
+    if(max_weight == 0) max_weight = 1;
 
     var weight_frame = new QGraphicsRectItem(
-        frame.x + this.albumCover_spacing,
-        frame.y + this.albumCover_y + 2 * this.albumCover_spacing,
-        this.albumCover_x,
-        this.weightIndicator_y,
-        frame.widget
-    );
+            frame.x + this.albumCover_spacing,
+            frame.y + this.albumCover_y + 2 * this.albumCover_spacing,
+            this.albumCover_x,
+            this.weightIndicator_y,
+            frame.widget
+            );
     var weight_value = new QGraphicsRectItem(
-        frame.x + this.albumCover_spacing + this.weightIndicator_thickness,
-        frame.y + this.albumCover_y + 2 * this.albumCover_spacing + this.weightIndicator_thickness,
-        (this.albumCover_x - 2 * this.weightIndicator_thickness) * (weight / max_weight),
-        this.weightIndicator_y - 2 * this.weightIndicator_thickness,
-        frame.widget
-    );
+            frame.x + this.albumCover_spacing + this.weightIndicator_thickness,
+            frame.y + this.albumCover_y + 2 * this.albumCover_spacing + this.weightIndicator_thickness,
+            (this.albumCover_x - 2 * this.weightIndicator_thickness) * (weight / max_weight),
+            this.weightIndicator_y - 2 * this.weightIndicator_thickness,
+            frame.widget
+            );
     weight_value.setPen(this.pen_dark);
     weight_value.setBrush(this.brush_solid_dark);
 }
@@ -130,7 +130,7 @@ DisplayCommon.prototype.addSimpleText = function(frame, text, y, big_font)
 
 
     txt.moveBy(frame.x + this.albumCover_x + 2 * this.albumCover_spacing + this.text_thickness,
-               frame.y + this.text_thickness + y);
+            frame.y + this.text_thickness + y);
     txt.setBrush(this.brush_text);
 
     if (big_font == true){
